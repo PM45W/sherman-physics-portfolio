@@ -1,0 +1,27 @@
+# Don't ignore node_modules during build
+!node_modules
+
+# Don't ignore package files
+!package.json
+!package-lock.json
+
+# Ignore development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore build artifacts (will be generated)
+build/
+
+# Ignore git files
+.git/
+.gitignore
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db 
