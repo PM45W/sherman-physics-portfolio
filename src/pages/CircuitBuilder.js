@@ -371,7 +371,7 @@ const CircuitNode = ({ data, selected }) => {
 };
 
 // Component types with their properties
-const componentTypes = [
+  const componentTypes = [
   {
     id: 'resistor',
     name: 'Resistor',
@@ -519,7 +519,7 @@ function CircuitBuilderContent() {
       setAnalysis({ error: 'No components on canvas' });
       return;
     }
-
+    
     try {
       // Simple circuit analysis - find voltage sources and calculate basic properties
       const voltageSources = nodes.filter(node => node.data.type === 'voltage-source');
@@ -527,8 +527,8 @@ function CircuitBuilderContent() {
       
       if (voltageSources.length === 0) {
         setAnalysis({ error: 'No voltage source found in circuit' });
-        return;
-      }
+      return;
+    }
 
       const totalVoltage = voltageSources.reduce((sum, source) => sum + (source.data.voltage || 0), 0);
       const totalResistance = resistors.reduce((sum, resistor) => sum + (resistor.data.resistance || 0), 0);
@@ -537,7 +537,7 @@ function CircuitBuilderContent() {
         setAnalysis({ error: 'No resistors found in circuit' });
         return;
       }
-
+      
       const current = (totalVoltage / totalResistance) * 1000; // Convert to mA
       const power = (totalVoltage * totalVoltage / totalResistance) * 1000; // Convert to mW
 
@@ -662,27 +662,27 @@ function CircuitBuilderContent() {
                 )}
 
                 {selectedNode.data.type === 'capacitor' && (
-                  <PropertyItem>
+                <PropertyItem>
                     <PropertyLabel>Capacitance (F)</PropertyLabel>
-                    <PropertyInput
-                      type="number"
+                  <PropertyInput
+                    type="number"
                       value={selectedNode.data.capacitance || 0}
                       onChange={(e) => updateNodeData(selectedNode.id, { capacitance: parseFloat(e.target.value) || 0 })}
                       step="0.000001"
-                    />
-                  </PropertyItem>
+                  />
+                </PropertyItem>
                 )}
 
                 {selectedNode.data.type === 'inductor' && (
-                  <PropertyItem>
+                <PropertyItem>
                     <PropertyLabel>Inductance (H)</PropertyLabel>
-                    <PropertyInput
-                      type="number"
+                  <PropertyInput
+                    type="number"
                       value={selectedNode.data.inductance || 0}
                       onChange={(e) => updateNodeData(selectedNode.id, { inductance: parseFloat(e.target.value) || 0 })}
                       step="0.001"
-                    />
-                  </PropertyItem>
+                  />
+                </PropertyItem>
                 )}
               </PropertyGroup>
             )}
