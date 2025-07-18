@@ -13,8 +13,8 @@ const HeroSection = styled.section`
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 0 2rem;
+  justify-content: flex-start;
+  padding: 2rem 2rem 0 2rem;
   position: relative;
 `;
 
@@ -33,7 +33,7 @@ const GridBackground = styled.div`
 
 const HeroContent = styled.div`
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 2rem auto 0 auto;
   width: 100%;
   position: relative;
   z-index: 1;

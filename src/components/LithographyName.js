@@ -45,11 +45,26 @@ const waferGlow = keyframes`
   }
 `;
 
+const redHighlight = keyframes`
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+`;
+
 const WaferContainer = styled.div`
   position: relative;
-  width: 400px;
-  height: 400px;
-  margin: 2rem auto;
+  width: 600px;
+  height: 600px;
+  margin: 1rem auto;
   border-radius: 50%;
   background: 
     radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
@@ -82,7 +97,7 @@ const LaserBeam = styled.div`
   top: 50%;
   left: 0;
   width: 100%;
-  height: 2px;
+  height: 3px;
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -94,8 +109,8 @@ const LaserBeam = styled.div`
   transform: translateY(-50%);
   animation: ${laserScan} 2s ease-in-out;
   box-shadow: 
-    0 0 10px rgba(255, 0, 0, 0.8),
-    0 0 20px rgba(255, 0, 0, 0.4);
+    0 0 15px rgba(255, 0, 0, 0.8),
+    0 0 30px rgba(255, 0, 0, 0.4);
   z-index: 3;
 `;
 
@@ -105,7 +120,7 @@ const NameContainer = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   font-family: var(--font-mono);
-  font-size: 2.2rem;
+  font-size: 3.3rem;
   font-weight: bold;
   color: var(--color-accent-gold);
   text-align: center;
@@ -123,6 +138,7 @@ const NameLetter = styled.span`
   animation: ${etchReveal} 0.5s ease-out forwards;
   animation-delay: ${props => props.delay}s;
   position: relative;
+  margin-right: ${props => props.letter === ' ' ? '0.75rem' : '0.3rem'};
   
   &::after {
     content: '';
@@ -143,13 +159,41 @@ const NameLetter = styled.span`
   }
 `;
 
+const RedHighlightLayer = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 3.3rem;
+  font-weight: bold;
+  color: rgba(255, 0, 0, 0.8);
+  text-align: center;
+  z-index: 1;
+  white-space: nowrap;
+  text-shadow: 
+    0 0 5px rgba(255, 0, 0, 0.8),
+    0 0 10px rgba(255, 0, 0, 0.6),
+    0 0 15px rgba(255, 0, 0, 0.4);
+  filter: blur(0.5px);
+`;
+
+const RedHighlightLetter = styled.span`
+  display: inline-block;
+  opacity: 0;
+  animation: ${redHighlight} 0.8s ease-out forwards;
+  animation-delay: ${props => props.delay}s;
+  position: relative;
+  margin-right: ${props => props.letter === ' ' ? '0.75rem' : '0.3rem'};
+`;
+
 const ProcessingText = styled.div`
   position: absolute;
-  bottom: -50px;
+  bottom: -60px;
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: var(--color-accent-gold);
   opacity: 0.7;
   text-align: center;
@@ -157,13 +201,13 @@ const ProcessingText = styled.div`
 
 const StatusIndicator = styled.div`
   position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 20px;
-  height: 20px;
+  top: -40px;
+  right: -40px;
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
   background: ${props => props.active ? 'var(--color-accent-red)' : 'var(--color-accent-gold)'};
-  box-shadow: 0 0 10px ${props => props.active ? 'var(--color-accent-red)' : 'var(--color-accent-gold)'};
+  box-shadow: 0 0 15px ${props => props.active ? 'var(--color-accent-red)' : 'var(--color-accent-gold)'};
   animation: ${props => props.active ? 'pulse 1s ease-in-out infinite' : 'none'};
   
   @keyframes pulse {
@@ -209,7 +253,16 @@ function LithographyName({ name = "SHERMAN WONG" }) {
     return <div>Loading...</div>;
   }
 
-  const letters = name.split('');
+  // Process the name to add proper spacing
+  const processName = (name) => {
+    // Split by space to separate first and last name
+    const nameParts = name.split(' ');
+    // Join with extra spaces for better separation
+    return nameParts.join('   ');
+  };
+
+  const processedName = processName(name);
+  const letters = processedName.split('');
   const baseDelay = 2.5;
 
   return (
@@ -218,11 +271,24 @@ function LithographyName({ name = "SHERMAN WONG" }) {
       
       {showLaser && <LaserBeam />}
       
+      <RedHighlightLayer>
+        {letters.map((letter, index) => (
+          <RedHighlightLetter 
+            key={`red-${index}`} 
+            delay={baseDelay + (index * 0.1) + 0.3}
+            letter={letter}
+          >
+            {letter}
+          </RedHighlightLetter>
+        ))}
+      </RedHighlightLayer>
+      
       <NameContainer>
         {letters.map((letter, index) => (
           <NameLetter 
             key={index} 
             delay={baseDelay + (index * 0.1)}
+            letter={letter}
           >
             {letter}
           </NameLetter>
