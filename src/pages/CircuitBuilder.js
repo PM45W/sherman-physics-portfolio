@@ -1,4 +1,15 @@
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
+import ReactFlow, {
+  addEdge,
+  useNodesState,
+  useEdgesState,
+  Controls,
+  Background,
+  MiniMap,
+  useReactFlow,
+  ReactFlowProvider,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 import styled from 'styled-components';
 
 const BuilderContainer = styled.main`
@@ -78,16 +89,81 @@ const ComponentPalette = styled.div`
   }
 `;
 
-const Canvas = styled.div`
+const FlowContainer = styled.div`
   background-color: rgba(26, 26, 26, 0.5);
   border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: 5px;
-  position: relative;
-  overflow: hidden;
-  min-height: 70vh;
+  height: 70vh;
   
   @media (max-width: 1024px) {
-    min-height: 50vh;
+    height: 50vh;
+  }
+  
+  .react-flow__node {
+    background-color: rgba(26, 26, 26, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 120px;
+    text-align: center;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: var(--color-accent-gold);
+      transform: translateY(-2px);
+    }
+    
+    &.selected {
+      border-color: var(--color-accent-gold);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+  }
+  
+  .react-flow__handle {
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-accent-gold);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    
+    &:hover {
+      background-color: var(--color-accent-red);
+      transform: scale(1.2);
+    }
+  }
+  
+  .react-flow__edge-path {
+    stroke: var(--color-accent-gold);
+    stroke-width: 3;
+    stroke-dasharray: none;
+  }
+  
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke: var(--color-accent-red);
+    stroke-width: 4;
+  }
+  
+  .react-flow__controls {
+    background-color: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+  }
+  
+  .react-flow__controls-button {
+    background-color: rgba(26, 26, 26, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+    
+    &:hover {
+      background-color: var(--color-accent-gold);
+      color: var(--color-bg);
+    }
+  }
+  
+  .react-flow__minimap {
+    background-color: rgba(10, 10, 10, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
   }
 `;
 
@@ -158,70 +234,6 @@ const ComponentName = styled.div`
   font-size: 0.8rem;
 `;
 
-const DroppedComponent = styled.div`
-  position: absolute;
-  background-color: rgba(26, 26, 26, 0.8);
-  border: 2px solid ${props => props.selected ? 'var(--color-accent-gold)' : 'rgba(255, 255, 255, 0.2)'};
-  border-radius: 5px;
-  padding: 1rem;
-  cursor: move;
-  transition: all 0.3s ease;
-  text-align: center;
-  min-width: 80px;
-  z-index: 2;
-  
-  &:hover {
-    border-color: var(--color-accent-gold);
-  }
-`;
-
-const ConnectionPoint = styled.div`
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: ${props => props.active ? 'var(--color-accent-red)' : 'var(--color-accent-gold)'};
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 3;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 ${props => props.active ? '8px' : '0'} ${props => props.active ? 'var(--color-accent-red)' : 'transparent'};
-  
-  &:hover {
-    transform: scale(1.3);
-    box-shadow: 0 0 8px var(--color-accent-gold);
-    background-color: var(--color-accent-gold);
-  }
-`;
-
-const Wire = styled.svg`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-`;
-
-const WirePath = styled.path`
-  stroke: var(--color-accent-gold);
-  stroke-width: 2;
-  fill: none;
-  stroke-dasharray: ${props => props.dashed ? '5,5' : 'none'};
-`;
-
-const CanvasGrid = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
-`;
-
 const PropertyGroup = styled.div`
   margin-bottom: 2rem;
 `;
@@ -254,6 +266,7 @@ const PropertyLabel = styled.label`
   margin-bottom: 0.5rem;
   font-family: var(--font-mono);
   font-size: 0.9rem;
+  color: var(--color-text);
 `;
 
 const PropertyInput = styled.input`
@@ -274,21 +287,23 @@ const PropertyInput = styled.input`
 
 const ActionButton = styled.button`
   width: 100%;
-  padding: 0.8rem;
-  background-color: transparent;
-  border: 1px solid ${props => props.secondary ? 'var(--color-accent-red)' : 'var(--color-accent-gold)'};
-  color: ${props => props.secondary ? 'var(--color-accent-red)' : 'var(--color-accent-gold)'};
-  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: ${props => props.secondary ? 'transparent' : 'var(--color-accent-gold)'};
+  border: 1px solid var(--color-accent-gold);
+  color: ${props => props.secondary ? 'var(--color-accent-gold)' : 'var(--color-bg)'};
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 5px;
   
   &:hover {
-    background-color: ${props => props.secondary ? 'rgba(255, 0, 0, 0.1)' : 'rgba(212, 175, 55, 0.1)'};
+    background-color: ${props => props.secondary ? 'var(--color-accent-gold)' : 'var(--color-accent-red)'};
+    color: var(--color-bg);
+    border-color: ${props => props.secondary ? 'var(--color-accent-gold)' : 'var(--color-accent-red)'};
   }
 `;
 
@@ -296,14 +311,13 @@ const ResultsPanel = styled.div`
   background-color: rgba(26, 26, 26, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 5px;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
+  padding: 1rem;
 `;
 
 const ResultItem = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
   font-family: var(--font-mono);
   font-size: 0.9rem;
 `;
@@ -321,385 +335,221 @@ const InstructionsPanel = styled.div`
   background-color: rgba(26, 26, 26, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 5px;
-  padding: 1.5rem;
-  margin-top: 1.5rem;
+  padding: 1rem;
 `;
 
 const InstructionItem = styled.div`
   display: flex;
   margin-bottom: 0.8rem;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
 `;
 
 const InstructionNumber = styled.span`
   color: var(--color-accent-gold);
   margin-right: 0.5rem;
-  font-family: var(--font-mono);
+  font-weight: bold;
 `;
 
 const InstructionText = styled.span`
   color: var(--color-text);
-  opacity: 0.8;
 `;
 
-function CircuitBuilder() {
-  const [components, setComponents] = useState([]);
-  const [selectedComponent, setSelectedComponent] = useState(null);
-  const [draggedComponent, setDraggedComponent] = useState(null);
+// Custom node component for circuit components
+const CircuitNode = ({ data, selected }) => {
+  return (
+    <div className={`circuit-node ${selected ? 'selected' : ''}`}>
+      <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{data.icon}</div>
+      <div style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)', marginBottom: '0.3rem' }}>
+        {data.symbol}
+      </div>
+      <div style={{ fontSize: '0.7rem', opacity: 0.8 }}>
+        {data.value}
+      </div>
+    </div>
+  );
+};
+
+// Component types with their properties
+const componentTypes = [
+  {
+    id: 'resistor',
+    name: 'Resistor',
+    icon: '⚡',
+    symbol: 'R',
+    value: '1kΩ',
+    type: 'resistor',
+    resistance: 1000
+  },
+  {
+    id: 'capacitor',
+    name: 'Capacitor',
+    icon: '⚡',
+    symbol: 'C',
+    value: '1μF',
+    type: 'capacitor',
+    capacitance: 0.000001
+  },
+  {
+    id: 'inductor',
+    name: 'Inductor',
+    icon: '⚡',
+    symbol: 'L',
+    value: '1mH',
+    type: 'inductor',
+    inductance: 0.001
+  },
+  {
+    id: 'voltage-source',
+    name: 'Voltage Source',
+    icon: '🔋',
+    symbol: 'V',
+    value: '5V',
+    type: 'voltage-source',
+    voltage: 5
+  },
+  {
+    id: 'current-source',
+    name: 'Current Source',
+    icon: '⚡',
+    symbol: 'I',
+    value: '1A',
+    type: 'current-source',
+    current: 1
+  },
+  {
+    id: 'led',
+    name: 'LED',
+    icon: '💡',
+    symbol: 'LED',
+    value: 'Red',
+    type: 'led',
+    forwardVoltage: 2
+  }
+];
+
+const nodeTypes = {
+  circuit: CircuitNode,
+};
+
+function CircuitBuilderContent() {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedNode, setSelectedNode] = useState(null);
   const [analysis, setAnalysis] = useState(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-  const [wires, setWires] = useState([]);
-  const [wireStart, setWireStart] = useState(null);
-  const [tempWire, setTempWire] = useState(null);
+  const { project } = useReactFlow();
 
-  const canvasRef = useRef(null);
+  // Handle edge connections
+  const onConnect = useCallback(
+    (params) => {
+      setEdges((eds) => addEdge(params, eds));
+    },
+    [setEdges]
+  );
 
-  const componentTypes = useMemo(() => [
-    { id: 'resistor', name: 'Resistor', icon: '🔲', symbol: 'R', defaultValue: '1k', connectionPoints: ['left', 'right'] },
-    { id: 'capacitor', name: 'Capacitor', icon: '⚡', symbol: 'C', defaultValue: '1μF', connectionPoints: ['left', 'right'] },
-    { id: 'inductor', name: 'Inductor', icon: '🌀', symbol: 'L', defaultValue: '1mH', connectionPoints: ['left', 'right'] },
-    { id: 'voltage', name: 'Voltage Source', icon: '🔋', symbol: 'V', defaultValue: '5V', connectionPoints: ['top', 'bottom'] },
-    { id: 'current', name: 'Current Source', icon: '⚡', symbol: 'I', defaultValue: '1mA', connectionPoints: ['top', 'bottom'] },
-    { id: 'ground', name: 'Ground', icon: '⏚', symbol: 'GND', defaultValue: '0V', connectionPoints: ['top'] },
-    { id: 'mosfet', name: 'MOSFET', icon: '🔌', symbol: 'M', defaultValue: 'N-CH', connectionPoints: ['left', 'right', 'bottom'] },
-    { id: 'diode', name: 'Diode', icon: '◄►', symbol: 'D', defaultValue: '1N4148', connectionPoints: ['left', 'right'] }
-  ], []);
-
-  useEffect(() => {
-    const updateCanvasSize = () => {
-      if (canvasRef.current) {
-        setCanvasSize({
-          width: canvasRef.current.offsetWidth,
-          height: canvasRef.current.offsetHeight
-        });
-      }
-    };
-
-    updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
-
-    return () => {
-      window.removeEventListener('resize', updateCanvasSize);
-    };
+  // Handle node selection
+  const onNodeClick = useCallback((event, node) => {
+    setSelectedNode(node);
   }, []);
 
-  const handleDragStart = (componentType) => {
-    setDraggedComponent(componentType);
-  };
-
-  const handleDragOver = useCallback((e) => {
-    e.preventDefault();
+  // Handle node deselection
+  const onPaneClick = useCallback(() => {
+    setSelectedNode(null);
   }, []);
 
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    if (!draggedComponent || !canvasRef.current) return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const componentType = componentTypes.find(type => type.id === draggedComponent.id);
-    const connectionPoints = componentType ? componentType.connectionPoints : [];
-
-    const newComponent = {
-      id: Date.now(),
-      type: draggedComponent.id,
-      name: draggedComponent.name,
-      icon: draggedComponent.icon,
-      symbol: draggedComponent.symbol,
-      value: draggedComponent.defaultValue,
-      x: Math.max(0, Math.min(x - 40, canvasSize.width - 80)),
-      y: Math.max(0, Math.min(y - 40, canvasSize.height - 80)),
-      connectionPoints,
-      connections: []
-    };
-
-    setComponents(prev => [...prev, newComponent]);
-    setDraggedComponent(null);
-  }, [draggedComponent, canvasSize, componentTypes]);
-
-  const handleComponentClick = (component) => {
-    setSelectedComponent(component);
+  // Add component to canvas
+  const onDragStart = (event, componentType) => {
+    event.dataTransfer.setData('application/reactflow', JSON.stringify(componentType));
+    event.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleComponentMove = (componentId, newX, newY) => {
-    setComponents(prev => {
-      const updatedComponents = prev.map(comp => 
-        comp.id === componentId 
-          ? { 
-              ...comp, 
-              x: Math.max(0, Math.min(newX, canvasSize.width - 80)), 
-              y: Math.max(0, Math.min(newY, canvasSize.height - 80)) 
-            }
-          : comp
-      );
-      
-      // Update wires connected to this component
-      const updatedWires = wires.map(wire => {
-        if (wire.startComponentId === componentId || wire.endComponentId === componentId) {
-          const startComponent = wire.startComponentId === componentId 
-            ? updatedComponents.find(c => c.id === componentId)
-            : updatedComponents.find(c => c.id === wire.startComponentId);
-            
-          const endComponent = wire.endComponentId === componentId
-            ? updatedComponents.find(c => c.id === componentId)
-            : updatedComponents.find(c => c.id === wire.endComponentId);
-            
-          if (!startComponent || !endComponent) return wire;
-          
-          const startPoint = getConnectionPointCoordinates(startComponent, wire.startPoint);
-          const endPoint = getConnectionPointCoordinates(endComponent, wire.endPoint);
-          
+  // Handle drop on canvas
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      const componentType = JSON.parse(event.dataTransfer.getData('application/reactflow'));
+      const position = project({ x: event.clientX, y: event.clientY });
+
+      const newNode = {
+        id: `${componentType.id}-${Date.now()}`,
+        type: 'circuit',
+        position,
+        data: { ...componentType },
+        sourcePosition: 'right',
+        targetPosition: 'left',
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [project, setNodes]
+  );
+
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  // Update node data
+  const updateNodeData = (nodeId, newData) => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === nodeId) {
           return {
-            ...wire,
-            startX: startPoint.x,
-            startY: startPoint.y,
-            endX: endPoint.x,
-            endY: endPoint.y
+            ...node,
+            data: { ...node.data, ...newData },
           };
         }
-        return wire;
-      });
-      
-      setWires(updatedWires);
-      return updatedComponents;
-    });
-  };
-
-  const updateComponentProperty = (property, value) => {
-    if (!selectedComponent) return;
-    
-    setComponents(prev => prev.map(comp =>
-      comp.id === selectedComponent.id
-        ? { ...comp, [property]: value }
-        : comp
-    ));
-    
-    setSelectedComponent(prev => ({ ...prev, [property]: value }));
-  };
-
-  const clearCanvas = () => {
-    setComponents([]);
-    setSelectedComponent(null);
-    setAnalysis(null);
-    setWires([]);
-    setWireStart(null);
-    setTempWire(null);
-  };
-
-  const analyzeCircuit = () => {
-    // Simple circuit analysis simulation
-    const resistors = components.filter(c => c.type === 'resistor');
-    const voltages = components.filter(c => c.type === 'voltage');
-    
-    if (resistors.length === 0 || voltages.length === 0) {
-      setAnalysis({ error: 'Circuit needs at least one resistor and one voltage source' });
-      return;
-    }
-
-    // Check if components are connected
-    if (wires.length === 0) {
-      setAnalysis({ error: 'Components need to be connected with wires' });
-      return;
-    }
-    
-    // Verify connections between voltage source and resistors
-    const connectedComponents = new Set();
-    
-    // Start with voltage sources
-    voltages.forEach(voltage => {
-      connectedComponents.add(voltage.id);
-      
-      // Find all connections from this voltage source
-      const connections = findConnectedComponents(voltage.id, new Set());
-      connections.forEach(id => connectedComponents.add(id));
-    });
-    
-    // Check if all resistors are connected
-    const allResistorsConnected = resistors.every(resistor => 
-      connectedComponents.has(resistor.id)
+        return node;
+      })
     );
-    
-    if (!allResistorsConnected) {
-      setAnalysis({ error: 'Not all resistors are connected to the voltage source' });
+  };
+
+  // Clear canvas
+  const clearCanvas = () => {
+    setNodes([]);
+    setEdges([]);
+    setSelectedNode(null);
+    setAnalysis(null);
+  };
+
+  // Analyze circuit
+  const analyzeCircuit = () => {
+    if (nodes.length === 0) {
+      setAnalysis({ error: 'No components on canvas' });
       return;
     }
 
-    // Simple series resistance calculation
-    const totalResistance = resistors.reduce((sum, r) => {
-      const value = parseFloat(r.value.replace(/[^\d.]/g, ''));
-      return sum + (isNaN(value) ? 1000 : value);
-    }, 0);
-
-    const sourceVoltage = parseFloat(voltages[0].value.replace(/[^\d.]/g, '')) || 5;
-    const current = sourceVoltage / totalResistance;
-    const power = sourceVoltage * current;
-
-    setAnalysis({
-      totalResistance: totalResistance.toFixed(2),
-      current: (current * 1000).toFixed(2), // Convert to mA
-      power: (power * 1000).toFixed(2), // Convert to mW
-      voltage: sourceVoltage.toFixed(2)
-    });
-  };
-  
-  // Helper function to find all connected components
-  const findConnectedComponents = (componentId, visited) => {
-    // Mark this component as visited
-    visited.add(componentId);
-    
-    // Find the component
-    const component = components.find(c => c.id === componentId);
-    if (!component) return visited;
-    
-    // Check all connections from this component
-    component.connections.forEach(connection => {
-      if (!visited.has(connection.connectedTo)) {
-        findConnectedComponents(connection.connectedTo, visited);
-      }
-    });
-    
-    return visited;
-  };
-
-  const getConnectionPointCoordinates = (component, pointType) => {
-    if (!component) return { x: 0, y: 0 };
-    
-    const width = 80; // Component width
-    const height = 80; // Component height
-    
-    switch (pointType) {
-      case 'left':
-        return { x: component.x, y: component.y + height / 2 };
-      case 'right':
-        return { x: component.x + width, y: component.y + height / 2 };
-      case 'top':
-        return { x: component.x + width / 2, y: component.y };
-      case 'bottom':
-        return { x: component.x + width / 2, y: component.y + height };
-      default:
-        return { x: component.x + width / 2, y: component.y + height / 2 };
-    }
-  };
-
-  const handleConnectionPointClick = (component, pointType) => {
-    if (!wireStart) {
-      // Start a new wire
-      const point = getConnectionPointCoordinates(component, pointType);
-      setWireStart({
-        componentId: component.id,
-        point: pointType,
-        x: point.x,
-        y: point.y
-      });
-    } else {
-      // Complete the wire
-      const endPoint = getConnectionPointCoordinates(component, pointType);
+    try {
+      // Simple circuit analysis - find voltage sources and calculate basic properties
+      const voltageSources = nodes.filter(node => node.data.type === 'voltage-source');
+      const resistors = nodes.filter(node => node.data.type === 'resistor');
       
-      // Don't connect to the same point
-      if (wireStart.componentId === component.id && wireStart.point === pointType) {
-        setWireStart(null);
-        setTempWire(null);
+      if (voltageSources.length === 0) {
+        setAnalysis({ error: 'No voltage source found in circuit' });
         return;
       }
-      
-      // Create new wire with precise coordinates
-      const startComponent = components.find(c => c.id === wireStart.componentId);
-      const startCoords = getConnectionPointCoordinates(startComponent, wireStart.point);
-      
-      const newWire = {
-        id: Date.now(),
-        startComponentId: wireStart.componentId,
-        startPoint: wireStart.point,
-        startX: startCoords.x,
-        startY: startCoords.y,
-        endComponentId: component.id,
-        endPoint: pointType,
-        endX: endPoint.x,
-        endY: endPoint.y
-      };
-      
-      // Update components with connection information
-      setComponents(prev => prev.map(comp => {
-        if (comp.id === wireStart.componentId) {
-          return {
-            ...comp,
-            connections: [...comp.connections, { 
-              wireId: newWire.id, 
-              connectedTo: component.id,
-              connectionPoint: wireStart.point
-            }]
-          };
-        }
-        if (comp.id === component.id) {
-          return {
-            ...comp,
-            connections: [...comp.connections, { 
-              wireId: newWire.id, 
-              connectedTo: wireStart.componentId,
-              connectionPoint: pointType
-            }]
-          };
-        }
-        return comp;
-      }));
-      
-      setWires([...wires, newWire]);
-      setWireStart(null);
-      setTempWire(null);
-    }
-  };
 
-  const handleCanvasMouseMove = (e) => {
-    if (wireStart) {
-      const rect = canvasRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const totalVoltage = voltageSources.reduce((sum, source) => sum + (source.data.voltage || 0), 0);
+      const totalResistance = resistors.reduce((sum, resistor) => sum + (resistor.data.resistance || 0), 0);
       
-      setTempWire({
-        startX: wireStart.x,
-        startY: wireStart.y,
-        endX: x,
-        endY: y
+      if (totalResistance === 0) {
+        setAnalysis({ error: 'No resistors found in circuit' });
+        return;
+      }
+
+      const current = (totalVoltage / totalResistance) * 1000; // Convert to mA
+      const power = (totalVoltage * totalVoltage / totalResistance) * 1000; // Convert to mW
+
+      setAnalysis({
+        totalResistance: totalResistance.toFixed(2),
+        current: current.toFixed(2),
+        power: power.toFixed(2),
+        voltage: totalVoltage.toFixed(2),
       });
+    } catch (error) {
+      setAnalysis({ error: 'Error analyzing circuit: ' + error.message });
     }
-  };
-
-  const handleCanvasClick = () => {
-    // Cancel wire creation if clicking on empty canvas
-    if (wireStart) {
-      setWireStart(null);
-      setTempWire(null);
-    }
-  };
-
-  const generateWirePath = (startX, startY, endX, endY) => {
-    // Create a curved path for the wire with better control points
-    const dx = Math.abs(endX - startX);
-    const dy = Math.abs(endY - startY);
-    
-    // Adjust control points based on distance
-    const curveFactor = Math.min(dx, dy) * 0.5 + 30;
-    
-    // Determine control points based on direction
-    let cp1x, cp1y, cp2x, cp2y;
-    
-    if (dx > dy) {
-      // Horizontal dominant direction
-      cp1x = startX + curveFactor;
-      cp1y = startY;
-      cp2x = endX - curveFactor;
-      cp2y = endY;
-    } else {
-      // Vertical dominant direction
-      cp1x = startX;
-      cp1y = startY + curveFactor;
-      cp2x = endX;
-      cp2y = endY - curveFactor;
-    }
-    
-    return `M ${startX} ${startY} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
   };
 
   return (
@@ -719,7 +569,7 @@ function CircuitBuilder() {
               <ComponentItem
                 key={component.id}
                 draggable
-                onDragStart={() => handleDragStart(component)}
+                onDragStart={(event) => onDragStart(event, component)}
               >
                 <ComponentIcon>{component.icon}</ComponentIcon>
                 <ComponentName>{component.name}</ComponentName>
@@ -727,78 +577,26 @@ function CircuitBuilder() {
             ))}
           </ComponentPalette>
 
-          <Canvas
-            ref={canvasRef}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onMouseMove={handleCanvasMouseMove}
-            onClick={handleCanvasClick}
-          >
-            <CanvasGrid />
-            
-            {/* Wires */}
-            <Wire>
-              {wires.map(wire => (
-                <WirePath
-                  key={wire.id}
-                  d={generateWirePath(wire.startX, wire.startY, wire.endX, wire.endY)}
-                />
-              ))}
-              
-              {tempWire && (
-                <WirePath
-                  d={generateWirePath(tempWire.startX, tempWire.startY, tempWire.endX, tempWire.endY)}
-                  dashed={true}
-                />
-              )}
-            </Wire>
-            
-            {/* Components */}
-            {components.map((component) => (
-              <React.Fragment key={component.id}>
-                <DroppedComponent
-                  style={{ left: component.x, top: component.y }}
-                  selected={selectedComponent?.id === component.id}
-                  onClick={() => handleComponentClick(component)}
-                  draggable
-                  onDragEnd={(e) => {
-                    const rect = canvasRef.current.getBoundingClientRect();
-                    const newX = e.clientX - rect.left - 40;
-                    const newY = e.clientY - rect.top - 40;
-                    handleComponentMove(component.id, newX, newY);
-                  }}
-                >
-                  <div style={{ fontSize: '1.5rem' }}>{component.icon}</div>
-                  <div style={{ fontSize: '0.8rem', marginTop: '0.5rem', fontFamily: 'var(--font-mono)' }}>
-                    {component.symbol}
-                  </div>
-                  <div style={{ fontSize: '0.7rem', opacity: 0.8, marginTop: '0.2rem' }}>
-                    {component.value}
-                  </div>
-                </DroppedComponent>
-                
-                {/* Connection points */}
-                {component.connectionPoints.map(point => {
-                  const coords = getConnectionPointCoordinates(component, point);
-                  const isActive = wireStart && wireStart.componentId === component.id && wireStart.point === point;
-                  return (
-                    <ConnectionPoint
-                      key={`${component.id}-${point}`}
-                      active={isActive}
-                      style={{
-                        left: coords.x - 5,
-                        top: coords.y - 5
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleConnectionPointClick(component, point);
-                      }}
-                    />
-                  );
-                })}
-              </React.Fragment>
-            ))}
-          </Canvas>
+          <FlowContainer>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onNodeClick={onNodeClick}
+              onPaneClick={onPaneClick}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              nodeTypes={nodeTypes}
+              fitView
+              attributionPosition="bottom-left"
+            >
+              <Background />
+              <Controls />
+              <MiniMap />
+            </ReactFlow>
+          </FlowContainer>
 
           <PropertiesPanel>
             <PropertyTitle>Circuit Tools</PropertyTitle>
@@ -811,7 +609,7 @@ function CircuitBuilder() {
               Clear Canvas
             </ActionButton>
 
-            {selectedComponent && (
+            {selectedNode && (
               <PropertyGroup>
                 <PropertyTitle>Component Properties</PropertyTitle>
                 
@@ -825,7 +623,7 @@ function CircuitBuilder() {
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.9rem'
                   }}>
-                    {selectedComponent.name}
+                    {selectedNode.data.name}
                   </div>
                 </PropertyItem>
 
@@ -833,29 +631,59 @@ function CircuitBuilder() {
                   <PropertyLabel>Value</PropertyLabel>
                   <PropertyInput
                     type="text"
-                    value={selectedComponent.value}
-                    onChange={(e) => updateComponentProperty('value', e.target.value)}
+                    value={selectedNode.data.value}
+                    onChange={(e) => updateNodeData(selectedNode.id, { value: e.target.value })}
                     placeholder="Enter value (e.g., 1k, 5V, 1μF)"
                   />
                 </PropertyItem>
 
-                <PropertyItem>
-                  <PropertyLabel>Position X</PropertyLabel>
-                  <PropertyInput
-                    type="number"
-                    value={selectedComponent.x}
-                    onChange={(e) => updateComponentProperty('x', parseInt(e.target.value))}
-                  />
-                </PropertyItem>
+                {selectedNode.data.type === 'voltage-source' && (
+                  <PropertyItem>
+                    <PropertyLabel>Voltage (V)</PropertyLabel>
+                    <PropertyInput
+                      type="number"
+                      value={selectedNode.data.voltage || 0}
+                      onChange={(e) => updateNodeData(selectedNode.id, { voltage: parseFloat(e.target.value) || 0 })}
+                      step="0.1"
+                    />
+                  </PropertyItem>
+                )}
 
-                <PropertyItem>
-                  <PropertyLabel>Position Y</PropertyLabel>
-                  <PropertyInput
-                    type="number"
-                    value={selectedComponent.y}
-                    onChange={(e) => updateComponentProperty('y', parseInt(e.target.value))}
-                  />
-                </PropertyItem>
+                {selectedNode.data.type === 'resistor' && (
+                  <PropertyItem>
+                    <PropertyLabel>Resistance (Ω)</PropertyLabel>
+                    <PropertyInput
+                      type="number"
+                      value={selectedNode.data.resistance || 0}
+                      onChange={(e) => updateNodeData(selectedNode.id, { resistance: parseFloat(e.target.value) || 0 })}
+                      step="1"
+                    />
+                  </PropertyItem>
+                )}
+
+                {selectedNode.data.type === 'capacitor' && (
+                  <PropertyItem>
+                    <PropertyLabel>Capacitance (F)</PropertyLabel>
+                    <PropertyInput
+                      type="number"
+                      value={selectedNode.data.capacitance || 0}
+                      onChange={(e) => updateNodeData(selectedNode.id, { capacitance: parseFloat(e.target.value) || 0 })}
+                      step="0.000001"
+                    />
+                  </PropertyItem>
+                )}
+
+                {selectedNode.data.type === 'inductor' && (
+                  <PropertyItem>
+                    <PropertyLabel>Inductance (H)</PropertyLabel>
+                    <PropertyInput
+                      type="number"
+                      value={selectedNode.data.inductance || 0}
+                      onChange={(e) => updateNodeData(selectedNode.id, { inductance: parseFloat(e.target.value) || 0 })}
+                      step="0.001"
+                    />
+                  </PropertyItem>
+                )}
               </PropertyGroup>
             )}
 
@@ -898,7 +726,7 @@ function CircuitBuilder() {
                 </InstructionItem>
                 <InstructionItem>
                   <InstructionNumber>2.</InstructionNumber>
-                  <InstructionText>Click on connection points to create wires</InstructionText>
+                  <InstructionText>Connect components by dragging from one handle to another</InstructionText>
                 </InstructionItem>
                 <InstructionItem>
                   <InstructionNumber>3.</InstructionNumber>
@@ -914,6 +742,14 @@ function CircuitBuilder() {
         </BuilderLayout>
       </div>
     </BuilderContainer>
+  );
+}
+
+function CircuitBuilder() {
+  return (
+    <ReactFlowProvider>
+      <CircuitBuilderContent />
+    </ReactFlowProvider>
   );
 }
 
