@@ -89,7 +89,6 @@ const EasterEgg = ({ onClose }) => {
     // Obstacles
     let obstacles = [];
     const obstacleWidth = 20;
-    const obstacleHeight = 80;
     const obstacleSpeed = 5;
     const obstacleGap = 200;
     

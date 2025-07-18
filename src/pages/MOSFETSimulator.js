@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 
 const SimulatorContainer = styled.main`
@@ -258,12 +258,12 @@ function MOSFETSimulator() {
   const animationRef = useRef(null);
 
   // Calculate MOSFET operating region
-  const getOperatingRegion = () => {
+  const getOperatingRegion = useCallback(() => {
     const { vgs, vds, vth } = parameters;
     if (vgs < vth) return "Cutoff";
     if (vds < (vgs - vth)) return "Linear/Triode";
     return "Saturation";
-  };
+  }, [parameters]);
 
   // Generate electrons based on parameters
   useEffect(() => {
@@ -285,7 +285,6 @@ function MOSFETSimulator() {
     }
     
     const containerWidth = containerRef.current.clientWidth - 40; // Padding
-    const containerHeight = containerRef.current.clientHeight - 40; // Padding
     
     // Calculate number of electrons based on parameters
     const { vgs, vth, mobility, vds } = parameters;
@@ -352,7 +351,7 @@ function MOSFETSimulator() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [parameters]);
+  }, [parameters, getOperatingRegion]);
 
   // Draw MOSFET structure on canvas
   useEffect(() => {

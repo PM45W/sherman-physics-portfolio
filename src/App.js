@@ -21,14 +21,14 @@ function App() {
   // Use konami state to prevent unused variable warning
   console.log('Konami sequence length:', konami.length);
   
-  // Konami code: up, up, down, down, left, right, left, right, b, a
-  const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
-  
   useEffect(() => {
     // Simulate loading
     const timer = setTimeout(() => {
       setLoading(false);
     }, 2000);
+    
+    // Konami code: up, up, down, down, left, right, left, right, b, a
+    const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
     
     // Konami code listener
     const handleKeyDown = (e) => {
@@ -53,7 +53,7 @@ function App() {
       clearTimeout(timer);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [konamiCode]);
+  }, []);
   
   // F1 Ferrari easter egg - press 'F' key
   useEffect(() => {

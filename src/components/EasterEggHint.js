@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 const fadeIn = keyframes`
@@ -23,20 +23,7 @@ const fadeOut = keyframes`
   }
 `;
 
-const cursorPulse = keyframes`
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-`;
+
 
 
 
@@ -107,7 +94,7 @@ function EasterEggHint() {
   // Use variables to prevent unused warnings
   console.log('Ferrari active:', isFerrariActive, 'Animation:', showCursorAnimation);
   
-  const hints = [
+  const hints = useMemo(() => [
     {
       id: 'ferrari',
       title: 'Σ∇∇∇ ∇∇∇∇∇',
@@ -132,7 +119,7 @@ function EasterEggHint() {
       icon: '⚡',
       text: 'System returned to ground state.'
     }
-  ];
+  ], []);
   
   // Listen for Ferrari cursor toggle and sync with body class
   useEffect(() => {

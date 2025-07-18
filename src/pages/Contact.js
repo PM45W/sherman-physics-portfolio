@@ -489,6 +489,7 @@ function Contact() {
         return () => clearTimeout(timer);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lineIndex, charIndex, terminalLines]);
 
   const handleInputChange = (e) => {

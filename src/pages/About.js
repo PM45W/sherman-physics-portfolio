@@ -495,6 +495,7 @@ const About = () => {
         return () => clearTimeout(timer);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lineIndex, charIndex, terminalLines]);
   
   const education = [

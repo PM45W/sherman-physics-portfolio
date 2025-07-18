@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 
 const BuilderContainer = styled.main`
@@ -351,10 +351,10 @@ function CircuitBuilder() {
   const [wires, setWires] = useState([]);
   const [wireStart, setWireStart] = useState(null);
   const [tempWire, setTempWire] = useState(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
   const canvasRef = useRef(null);
 
-  const componentTypes = [
+  const componentTypes = useMemo(() => [
     { id: 'resistor', name: 'Resistor', icon: '🔲', symbol: 'R', defaultValue: '1k', connectionPoints: ['left', 'right'] },
     { id: 'capacitor', name: 'Capacitor', icon: '⚡', symbol: 'C', defaultValue: '1μF', connectionPoints: ['left', 'right'] },
     { id: 'inductor', name: 'Inductor', icon: '🌀', symbol: 'L', defaultValue: '1mH', connectionPoints: ['left', 'right'] },
@@ -363,7 +363,7 @@ function CircuitBuilder() {
     { id: 'ground', name: 'Ground', icon: '⏚', symbol: 'GND', defaultValue: '0V', connectionPoints: ['top'] },
     { id: 'mosfet', name: 'MOSFET', icon: '🔌', symbol: 'M', defaultValue: 'N-CH', connectionPoints: ['left', 'right', 'bottom'] },
     { id: 'diode', name: 'Diode', icon: '◄►', symbol: 'D', defaultValue: '1N4148', connectionPoints: ['left', 'right'] }
-  ];
+  ], []);
 
   useEffect(() => {
     const updateCanvasSize = () => {
@@ -389,7 +389,6 @@ function CircuitBuilder() {
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
-    setMousePosition({ x: e.clientX, y: e.clientY });
   }, []);
 
   const handleDrop = useCallback((e) => {
@@ -418,7 +417,7 @@ function CircuitBuilder() {
 
     setComponents(prev => [...prev, newComponent]);
     setDraggedComponent(null);
-  }, [draggedComponent, canvasSize]);
+  }, [draggedComponent, canvasSize, componentTypes]);
 
   const handleComponentClick = (component) => {
     setSelectedComponent(component);

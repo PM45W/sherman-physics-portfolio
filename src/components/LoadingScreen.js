@@ -85,7 +85,7 @@ const LoadingScreen = () => {
     "ψ = Σ αₙ|n⟩ ... SUPERPOSITION LOADING..."
   ];
   
-  const [motto, setMotto] = useState(mottos[Math.floor(Math.random() * mottos.length)]);
+  const [motto] = useState(mottos[Math.floor(Math.random() * mottos.length)]);
   
   useEffect(() => {
     const statuses = [

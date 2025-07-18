@@ -117,7 +117,6 @@ const MolecularAnimation = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       
-      const ctx = canvas.getContext('2d');
       const width = canvas.width;
       const height = canvas.height;
       
@@ -379,6 +378,9 @@ const MolecularAnimation = () => {
               p.x = p.baseX + (Math.sin(frameCountRef.current * 0.05 + i) * vibrationAmount);
               p.y = p.baseY + (Math.sin(frameCountRef.current * 0.05 + i + 2) * vibrationAmount);
             }
+            break;
+          default:
+            // Default behavior - no movement
             break;
         }
         
