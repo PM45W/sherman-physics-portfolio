@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import LithographyName from './LithographyName';
 
 const LoadingContainer = styled.div`
   position: fixed;

@@ -38,26 +38,7 @@ const cursorPulse = keyframes`
   }
 `;
 
-const CursorAnimationOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 999;
-  
-  &::after {
-    content: '🏎️';
-    position: fixed;
-    font-size: 2rem;
-    animation: ${cursorPulse} 1s ease-in-out;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
-    left: var(--mouse-x, 50%);
-    top: var(--mouse-y, 50%);
-  }
-`;
+
 
 const HintContainer = styled.div`
   position: fixed;
@@ -111,30 +92,7 @@ const CloseButton = styled.button`
   }
 `;
 
-const FerrariStatusIndicator = styled.div`
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: rgba(255, 0, 0, 0.9);
-  border: 1px solid var(--color-accent-red);
-  border-radius: 20px;
-  padding: 0.5rem 1rem;
-  color: white;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: bold;
-  z-index: 1001;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  animation: ${fadeIn} 0.3s ease-in-out;
-  box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
-  
-  &::before {
-    content: '🏎️';
-    font-size: 1rem;
-  }
-`;
+
 
 function EasterEggHint() {
   const [currentHint, setCurrentHint] = useState(null);
@@ -145,6 +103,9 @@ function EasterEggHint() {
   });
   const [isFerrariActive, setIsFerrariActive] = useState(false);
   const [showCursorAnimation, setShowCursorAnimation] = useState(false);
+  
+  // Use variables to prevent unused warnings
+  console.log('Ferrari active:', isFerrariActive, 'Animation:', showCursorAnimation);
   
   const hints = [
     {

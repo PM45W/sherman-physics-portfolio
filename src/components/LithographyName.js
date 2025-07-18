@@ -175,25 +175,35 @@ function LithographyName({ name = "SHERMAN WONG" }) {
 
   useEffect(() => {
     const sequence = async () => {
-      // Start processing
-      setIsProcessing(true);
-      
-      // Wait a moment, then show laser
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setShowLaser(true);
-      
-      // Laser scanning duration
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setShowLaser(false);
-      
-      // Processing complete
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setIsProcessing(false);
-      setIsComplete(true);
+      try {
+        // Start processing
+        setIsProcessing(true);
+        
+        // Wait a moment, then show laser
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setShowLaser(true);
+        
+        // Laser scanning duration
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setShowLaser(false);
+        
+        // Processing complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+        setIsProcessing(false);
+        setIsComplete(true);
+      } catch (error) {
+        console.error('LithographyName animation error:', error);
+        setIsProcessing(false);
+        setIsComplete(true);
+      }
     };
 
     sequence();
   }, []);
+
+  if (!name) {
+    return <div>Loading...</div>;
+  }
 
   const letters = name.split('');
   const baseDelay = 2.5; // Start revealing letters after laser scan
