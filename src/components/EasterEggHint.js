@@ -149,27 +149,27 @@ function EasterEggHint() {
   const hints = [
     {
       id: 'ferrari',
-      title: 'Ferrari F1 Easter Egg',
-      icon: '🏎️',
-      text: 'Press "F" key to toggle the Ferrari F1 cursor!'
+      title: 'Σ∇∇∇ ∇∇∇∇∇',
+      icon: '⚡',
+      text: 'Φ → ∇∇∇∇∇∇ ∇∇∇∇∇∇∇∇∇'
     },
     {
       id: 'konami',
-      title: 'Secret Game',
-      icon: '🎮',
-      text: 'Try the Konami code: ↑↑↓↓←→←→BA to unlock a hidden game!'
+      title: '∇∇∇∇∇∇ ∇∇∇∇',
+      icon: '⚛️',
+      text: '↑↑↓↓←→←→ΒΑ → ∇∇∇∇∇∇∇'
     },
     {
       id: 'ferrari-active',
-      title: 'Ferrari Cursor Activated!',
-      icon: '🏎️',
-      text: 'Ferrari F1 cursor is now active. Press "F" again to deactivate.'
+      title: 'Quantum State: |1⟩',
+      icon: '⚡',
+      text: 'Velocity vector engaged. Φ to decouple.'
     },
     {
       id: 'ferrari-deactivated',
-      title: 'Ferrari Cursor Deactivated',
-      icon: '🏎️',
-      text: 'Ferrari F1 cursor has been deactivated.'
+      title: 'Quantum State: |0⟩',
+      icon: '⚡',
+      text: 'System returned to ground state.'
     }
   ];
   
@@ -205,29 +205,39 @@ function EasterEggHint() {
   }, [hints]);
   
   useEffect(() => {
-    // Show hints sequentially if not dismissed
+    // Show hints extremely rarely - only once per month and much later
     const showHints = async () => {
-      // Wait for page to load
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Wait 30 minutes for page to load
+      await new Promise(resolve => setTimeout(resolve, 1800000));
       
-      // Show Ferrari hint if not dismissed
-      if (!hintDismissed.ferrari) {
+      // Show Ferrari hint only once per month
+      const lastShown = localStorage.getItem('ferrari-hint-last-shown');
+      const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      
+      if (!hintDismissed.ferrari && (!lastShown || new Date(lastShown) < monthAgo)) {
         setCurrentHint(hints[0]);
         setShowHint(true);
+        localStorage.setItem('ferrari-hint-last-shown', new Date().toISOString());
         
-        // Extended duration: 20 seconds instead of 10
-        await new Promise(resolve => setTimeout(resolve, 20000));
+        // Very short duration: 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
         setShowHint(false);
-        await new Promise(resolve => setTimeout(resolve, 500)); // Wait for animation
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
-      // Show Konami hint if not dismissed
-      if (!hintDismissed.konami) {
+      // Show Konami hint only after 60 minutes and once per 3 months
+      await new Promise(resolve => setTimeout(resolve, 3600000));
+      
+      const lastKonamiShown = localStorage.getItem('konami-hint-last-shown');
+      const threeMonthsAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      
+      if (!hintDismissed.konami && (!lastKonamiShown || new Date(lastKonamiShown) < threeMonthsAgo)) {
         setCurrentHint(hints[1]);
         setShowHint(true);
+        localStorage.setItem('konami-hint-last-shown', new Date().toISOString());
         
-        // Extended duration: 20 seconds instead of 10
-        await new Promise(resolve => setTimeout(resolve, 20000));
+        // Very short duration: 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
         setShowHint(false);
       }
     };

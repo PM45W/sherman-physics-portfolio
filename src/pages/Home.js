@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import LithographyName from '../components/LithographyName';
 
 const HomeContainer = styled.main`
   min-height: 100vh;
@@ -38,32 +39,7 @@ const HeroContent = styled.div`
   z-index: 1;
 `;
 
-const HeroTitle = styled.h1`
-  font-family: var(--font-mono);
-  font-size: clamp(2.5rem, 8vw, 5rem);
-  margin-bottom: 1rem;
-  line-height: 1.1;
-  position: relative;
-  display: inline-block;
-  
-  .accent {
-    color: var(--color-accent-red);
-  }
-  
-  .gold {
-    color: var(--color-accent-gold);
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 100px;
-    height: 4px;
-    background: linear-gradient(90deg, var(--color-accent-red), var(--color-accent-gold));
-  }
-`;
+
 
 const HeroSubtitle = styled.h2`
   font-family: var(--font-sans);
@@ -241,6 +217,7 @@ const ProjectCard = styled.div`
   &:hover {
     transform: translateY(-5px);
     border-color: var(--color-accent-gold);
+    will-change: transform;
   }
   
   &::before {
@@ -505,16 +482,20 @@ const Home = () => {
   
   const quotes = [
     {
-      text: "In the realm of quantum mechanics, chaos is not disorder but a higher form of order we've yet to comprehend.",
-      author: "Sherman Wong"
+      text: "ψ(x,t) = Σ cₙ φₙ(x) e^(-iEₙt/ℏ) ... The wavefunction collapses only when observed, yet reality persists in superposition.",
+      author: "S.W. - Quantum Codex"
     },
     {
-      text: "The beauty of physics lies not in its certainty, but in its ability to quantify uncertainty.",
-      author: "Sherman Wong"
+      text: "01001000 01100101 01111000 20 4C 69 66 65 ... In the silicon lattice, electrons dance to frequencies only the initiated can decode.",
+      author: "The Semiconductor Cipher"
     },
     {
-      text: "At the intersection of theory and application, we find the true power of semiconductor physics.",
-      author: "Sherman Wong"
+      text: "E = ℏω, but what frequency does consciousness resonate at? The answer lies in the forbidden energy gap.",
+      author: "Quantum Manuscript 2024"
+    },
+    {
+      text: "λ = h/p ... When momentum becomes uncertain, reality itself begins to blur at the edges of measurement.",
+      author: "Heisenberg's Shadow"
     }
   ];
   
@@ -525,14 +506,7 @@ const Home = () => {
       <HeroSection>
         <GridBackground />
         <HeroContent>
-          <HeroTitle>
-            <span className="chaos-text" style={{ '--rotation': '-2deg' }}>
-              SHERMAN
-            </span>{' '}
-            <span className="chaos-text" style={{ '--rotation': '1deg' }}>
-              <span className="accent">W</span><span className="gold">ONG</span>
-            </span>
-          </HeroTitle>
+          <LithographyName name="SHERMAN WONG" />
           <HeroSubtitle>
             <span className="glitch" data-text="PUSHING ELECTRONS TO THEIR QUANTUM LIMITS">
               PUSHING ELECTRONS TO THEIR QUANTUM LIMITS

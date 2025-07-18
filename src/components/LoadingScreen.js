@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import LithographyName from './LithographyName';
 
 const LoadingContainer = styled.div`
   position: fixed;
@@ -76,13 +77,13 @@ const LoadingScreen = () => {
   const [status, setStatus] = useState('Initializing...');
   
   const mottos = [
-    "PUSHING ELECTRONS TO THEIR QUANTUM LIMITS",
-    "WHERE PHYSICS MEETS CHAOS, INNOVATION EMERGES",
-    "BREAKING BARRIERS AT THE SPEED OF THOUGHT",
-    "QUANTUM MECHANICS: IT'S COMPLICATED",
-    "DEFYING CONVENTION, DEFINING TOMORROW",
-    "PRECISION IN CHAOS, BEAUTY IN DISORDER",
-    "RIDING THE WAVE FUNCTION OF POSSIBILITY"
+    "01010111 01100001 01101011 01101001 01101110 01100111...", // "Waking..." in binary
+    "DECRYPTING QUANTUM ENTANGLEMENTS...",
+    "INITIALIZING SCHRÖDINGER PROTOCOLS...",
+    "LOADING PARALLEL UNIVERSES... 42%",
+    "CALIBRATING HEISENBERG COMPENSATORS...",
+    "BOOTSTRAPPING REALITY.EXE...",
+    "ψ = Σ αₙ|n⟩ ... SUPERPOSITION LOADING..."
   ];
   
   const [motto, setMotto] = useState(mottos[Math.floor(Math.random() * mottos.length)]);
