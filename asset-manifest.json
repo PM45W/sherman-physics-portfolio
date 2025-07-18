@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/sherman-physics-portfolio/static/css/main.f697cbc7.css",
-    "main.js": "/sherman-physics-portfolio/static/js/main.de010146.js",
-    "static/media/ferrari-cursor.svg": "/sherman-physics-portfolio/static/media/ferrari-cursor.440d19bc2148edf00018.svg",
-    "index.html": "/sherman-physics-portfolio/index.html",
-    "main.f697cbc7.css.map": "/sherman-physics-portfolio/static/css/main.f697cbc7.css.map",
-    "main.de010146.js.map": "/sherman-physics-portfolio/static/js/main.de010146.js.map"
+    "main.css": "./static/css/main.8f10aef4.css",
+    "main.js": "./static/js/main.ac48f094.js",
+    "static/media/ferrari-cursor.svg": "./static/media/ferrari-cursor.440d19bc2148edf00018.svg",
+    "index.html": "./index.html",
+    "main.8f10aef4.css.map": "./static/css/main.8f10aef4.css.map",
+    "main.ac48f094.js.map": "./static/js/main.ac48f094.js.map"
   },
   "entrypoints": [
-    "static/css/main.f697cbc7.css",
-    "static/js/main.de010146.js"
+    "static/css/main.8f10aef4.css",
+    "static/js/main.ac48f094.js"
   ]
 }
