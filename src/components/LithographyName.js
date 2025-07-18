@@ -47,14 +47,14 @@ const waferGlow = keyframes`
 
 const WaferContainer = styled.div`
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 400px;
+  height: 400px;
   margin: 2rem auto;
   border-radius: 50%;
   background: 
     radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 100%);
-  border: 2px solid var(--color-accent-gold);
+  border: 3px solid var(--color-accent-gold);
   animation: ${waferGlow} 3s ease-in-out infinite;
   overflow: hidden;
   
@@ -105,12 +105,16 @@ const NameContainer = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   font-family: var(--font-mono);
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   font-weight: bold;
   color: var(--color-accent-gold);
   text-align: center;
   z-index: 2;
   white-space: nowrap;
+  text-shadow: 
+    0 0 10px var(--color-accent-gold),
+    0 0 20px var(--color-accent-gold),
+    0 0 30px var(--color-accent-gold);
 `;
 
 const NameLetter = styled.span`
@@ -206,7 +210,7 @@ function LithographyName({ name = "SHERMAN WONG" }) {
   }
 
   const letters = name.split('');
-  const baseDelay = 2.5; // Start revealing letters after laser scan
+  const baseDelay = 2.5;
 
   return (
     <WaferContainer>
