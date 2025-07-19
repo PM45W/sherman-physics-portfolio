@@ -13,6 +13,29 @@ const LoadingContainer = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      linear-gradient(rgba(26, 26, 26, 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26, 26, 26, 0.5) 1px, transparent 1px);
+    background-size: 30px 30px;
+    animation: gridMove 20s linear infinite;
+  }
+  
+  @keyframes gridMove {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(30px, 30px);
+    }
+  }
 `;
 
 const LoadingText = styled.div`
@@ -21,6 +44,7 @@ const LoadingText = styled.div`
   margin-bottom: 2rem;
   color: var(--color-text);
   position: relative;
+  z-index: 1;
   
   &::after {
     content: '';
@@ -30,15 +54,27 @@ const LoadingText = styled.div`
     bottom: -5px;
     left: 0;
     background: linear-gradient(90deg, var(--color-accent-red), var(--color-accent-gold));
+    animation: shimmer 2s ease-in-out infinite;
+  }
+  
+  @keyframes shimmer {
+    0%, 100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 `;
 
 const LoadingBar = styled.div`
   width: 300px;
-  height: 2px;
+  height: 4px;
   background-color: var(--color-gray-light);
   position: relative;
   overflow: hidden;
+  border-radius: 2px;
+  z-index: 1;
   
   &::before {
     content: '';
@@ -49,6 +85,15 @@ const LoadingBar = styled.div`
     width: ${props => props.progress}%;
     background: linear-gradient(90deg, var(--color-accent-red), var(--color-accent-gold));
     transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+  
+  @media (max-width: 768px) {
+    width: 250px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 200px;
   }
 `;
 
@@ -58,6 +103,12 @@ const LoadingStatus = styled.div`
   margin-top: 1rem;
   color: var(--color-text);
   opacity: 0.7;
+  z-index: 1;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const Motto = styled.div`
@@ -69,6 +120,18 @@ const Motto = styled.div`
   opacity: 0.7;
   text-align: center;
   max-width: 80%;
+  z-index: 1;
+  animation: pulse 2s ease-in-out infinite;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    bottom: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.7rem;
+    bottom: 1rem;
+  }
 `;
 
 const LoadingScreen = () => {

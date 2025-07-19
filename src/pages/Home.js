@@ -464,6 +464,10 @@ const Quote = styled.blockquote`
   font-style: italic;
   line-height: 1.6;
   position: relative;
+  padding: 2rem;
+  border: 2px solid var(--color-accent-gold);
+  border-radius: 10px;
+  background-color: rgba(212, 175, 55, 0.05);
   
   &::before {
     content: '"';
@@ -471,9 +475,10 @@ const Quote = styled.blockquote`
     font-size: 4rem;
     color: var(--color-accent-gold);
     position: absolute;
-    top: -2rem;
-    left: -2rem;
-    opacity: 0.5;
+    top: -1rem;
+    left: 1rem;
+    background-color: var(--color-gray-dark);
+    padding: 0 0.5rem;
   }
   
   &::after {
@@ -482,9 +487,20 @@ const Quote = styled.blockquote`
     font-size: 4rem;
     color: var(--color-accent-gold);
     position: absolute;
-    bottom: -4rem;
-    right: -2rem;
-    opacity: 0.5;
+    bottom: -1rem;
+    right: 1rem;
+    background-color: var(--color-gray-dark);
+    padding: 0 0.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    font-size: clamp(1rem, 4vw, 1.4rem);
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    font-size: clamp(0.9rem, 4.5vw, 1.2rem);
   }
 `;
 
@@ -597,10 +613,8 @@ const Home = () => {
         <GridBackground />
         <HeroContent>
           <LithographyName name="SHERMAN WONG" />
-          <HeroSubtitle>
-            <span className="glitch" data-text="PUSHING ELECTRONS TO THEIR QUANTUM LIMITS">
-              PUSHING ELECTRONS TO THEIR QUANTUM LIMITS
-            </span>
+          <HeroSubtitle className="glitch" data-text="PUSHING ELECTRONS TO THEIR QUANTUM LIMITS">
+            PUSHING ELECTRONS TO THEIR QUANTUM LIMITS
           </HeroSubtitle>
           <ButtonContainer>
             <PrimaryButton to="/about">About Me</PrimaryButton>

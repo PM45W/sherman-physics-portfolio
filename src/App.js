@@ -9,6 +9,7 @@ import CircuitBuilder from './pages/CircuitBuilder';
 import Research from './pages/Research';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
+import UnderConstruction from './pages/UnderConstruction';
 import LoadingScreen from './components/LoadingScreen';
 import EasterEgg from './components/EasterEgg';
 import EasterEggHint from './components/EasterEggHint';
@@ -22,10 +23,10 @@ function App() {
   console.log('Konami sequence length:', konami.length);
   
   useEffect(() => {
-    // Simulate loading
+    // Simulate loading with longer duration for better experience
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 4000);
     
     // Konami code: up, up, down, down, left, right, left, right, b, a
     const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
@@ -86,6 +87,7 @@ function App() {
         <Route path="/circuit" element={<CircuitBuilder />} />
         <Route path="/research" element={<Research />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/under-construction" element={<UnderConstruction />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
