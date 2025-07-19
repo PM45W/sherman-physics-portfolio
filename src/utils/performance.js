@@ -117,7 +117,7 @@ class PerformanceMonitor {
     return {
       ...this.metrics,
       userAgent: navigator.userAgent,
-      screenResolution: `${screen.width}x${screen.height}`,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
       viewport: `${window.innerWidth}x${window.innerHeight}`
     };
   }

@@ -14,7 +14,6 @@ import LoadingScreen from './components/LoadingScreen';
 import EasterEgg from './components/EasterEgg';
 import EasterEggHint from './components/EasterEggHint';
 import ErrorBoundary from './components/ErrorBoundary';
-import performanceMonitor from './utils/performance';
 
 function App() {
   const [loading, setLoading] = useState(true);

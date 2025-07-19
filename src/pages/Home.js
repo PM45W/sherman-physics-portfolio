@@ -531,12 +531,14 @@ const QuoteAuthor = styled.cite`
   color: var(--color-accent-red);
 `;
 
+// eslint-disable-next-line no-unused-vars
 const CodingProjectsSection = styled.section`
   padding: 6rem 2rem;
   background-color: var(--color-gray-dark);
   position: relative;
 `;
 
+// eslint-disable-next-line no-unused-vars
 const CodingProjectsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -550,6 +552,7 @@ const CodingProjectsGrid = styled.div`
   }
 `;
 
+// eslint-disable-next-line no-unused-vars
 const CodingProjectCard = styled.div`
   background-color: rgba(10, 10, 10, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -672,7 +675,7 @@ const Home = () => {
         return () => clearTimeout(timer);
       }
     }
-  }, [lineIndex, charIndex]);
+  }, [lineIndex, charIndex, terminalScript]);
   
   useEffect(() => {
     if (terminalRef.current) {
