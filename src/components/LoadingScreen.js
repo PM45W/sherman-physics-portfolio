@@ -27,12 +27,14 @@ const LoadingText = styled.div`
 
 const LoadingBar = styled.div`
   width: 300px;
-  height: 4px;
+  height: 8px;
   background-color: #333333;
   position: relative;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 4px;
   z-index: 1;
+  border: 1px solid #555555;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   
   &::before {
     content: '';
@@ -43,6 +45,27 @@ const LoadingBar = styled.div`
     width: ${props => props.$progress}%;
     background: linear-gradient(90deg, #ff0000, #d4af37);
     transition: width 0.3s ease;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
 `;
 
@@ -54,6 +77,17 @@ const LoadingStatus = styled.div`
   opacity: 0.7;
   z-index: 1;
   text-align: center;
+`;
+
+const ProgressText = styled.div`
+  font-family: 'Space Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #d4af37;
+  margin-bottom: 0.5rem;
+  z-index: 1;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
 `;
 
 const Motto = styled.div`
@@ -107,13 +141,15 @@ const LoadingScreen = () => {
         return;
       }
       
-      const increment = Math.floor(Math.random() * 10) + 1;
+      const increment = Math.floor(Math.random() * 8) + 2;
       currentProgress = Math.min(currentProgress + increment, 100);
       setProgress(currentProgress);
       
+      console.log('Progress updated:', currentProgress);
+      
       const statusIndex = Math.floor((currentProgress / 100) * (statuses.length - 1));
       setStatus(statuses[statusIndex]);
-    }, 200);
+    }, 150);
     
     return () => clearInterval(interval);
   }, []);
@@ -121,6 +157,7 @@ const LoadingScreen = () => {
   return (
     <LoadingContainer>
       <LoadingText className="glitch" data-text="SHERMAN WONG">SHERMAN WONG</LoadingText>
+      <ProgressText>{progress}%</ProgressText>
       <LoadingBar $progress={progress} />
       <LoadingStatus>{status}</LoadingStatus>
       <Motto>{motto}</Motto>
