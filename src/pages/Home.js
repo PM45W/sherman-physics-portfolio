@@ -491,7 +491,7 @@ const Quote = styled.blockquote`
     position: absolute;
     top: 0.5rem;
     left: 0.5rem;
-    background-color: var(--color-gray-dark);
+    background-color: rgba(212, 175, 55, 0.05);
     padding: 0 0.3rem;
     z-index: 1;
     line-height: 1;
@@ -505,7 +505,7 @@ const Quote = styled.blockquote`
     position: absolute;
     bottom: 0.5rem;
     right: 0.5rem;
-    background-color: var(--color-gray-dark);
+    background-color: rgba(212, 175, 55, 0.05);
     padding: 0 0.3rem;
     z-index: 1;
     line-height: 1;
@@ -529,6 +529,105 @@ const QuoteAuthor = styled.cite`
   font-style: normal;
   font-size: 1rem;
   color: var(--color-accent-red);
+`;
+
+const CodingProjectsSection = styled.section`
+  padding: 6rem 2rem;
+  background-color: var(--color-gray-dark);
+  position: relative;
+`;
+
+const CodingProjectsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+`;
+
+const CodingProjectCard = styled.div`
+  background-color: rgba(10, 10, 10, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-accent-gold);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: linear-gradient(to bottom, var(--color-accent-red), var(--color-accent-gold));
+    transition: height 0.3s ease;
+  }
+  
+  &:hover::before {
+    height: 100%;
+  }
+`;
+
+const CodingProjectTitle = styled.h3`
+  font-family: var(--font-mono);
+  color: var(--color-accent-gold);
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const CodingProjectDescription = styled.p`
+  opacity: 0.8;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+`;
+
+const CodingProjectTech = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+`;
+
+const TechTag = styled.span`
+  background-color: rgba(26, 26, 26, 0.5);
+  color: var(--color-accent-gold);
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  font-family: var(--font-mono);
+`;
+
+const CodingProjectLink = styled.a`
+  color: var(--color-accent-red);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    color: var(--color-accent-gold);
+    transform: translateX(5px);
+  }
 `;
 
 const Home = () => {
@@ -636,6 +735,51 @@ const Home = () => {
   
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
   
+  const codingProjects = [
+    {
+      title: 'Physics Portfolio Website',
+      icon: '🌐',
+      description: 'Interactive React portfolio showcasing physics research, simulations, and projects with modern UI/UX design.',
+      tech: ['React', 'JavaScript', 'Styled Components', 'GitHub Pages'],
+      link: 'https://github.com/PM45W/sherman-physics-portfolio'
+    },
+    {
+      title: 'MOSFET Simulator',
+      icon: '⚡',
+      description: 'Interactive web-based MOSFET device simulator with real-time parameter visualization and I-V characteristics.',
+      tech: ['JavaScript', 'Canvas API', 'Physics Simulation', 'WebGL'],
+      link: '/mosfet'
+    },
+    {
+      title: 'Circuit Builder',
+      icon: '🔌',
+      description: 'Drag-and-drop circuit design tool with component simulation and real-time analysis capabilities.',
+      tech: ['React', 'React Flow', 'Circuit Analysis', 'JavaScript'],
+      link: '/circuit'
+    },
+    {
+      title: 'Sustainable Home Gardening System',
+      icon: '🌱',
+      description: 'C++ application for automated home gardening with sensor integration and environmental monitoring.',
+      tech: ['C++', 'Arduino', 'IoT', 'Sensor Integration'],
+      link: 'https://github.com/PM45W/Sustainable-home-gardening-system'
+    },
+    {
+      title: 'AI Data Analysis Tools',
+      icon: '🤖',
+      description: 'Python-based tools for AI-assisted data analysis in physics research and materials science.',
+      tech: ['Python', 'Machine Learning', 'Data Science', 'NumPy'],
+      link: '#'
+    },
+    {
+      title: 'Quantum Physics Visualizer',
+      icon: '⚛️',
+      description: 'Interactive visualization tool for quantum mechanics concepts and wavefunction analysis.',
+      tech: ['JavaScript', 'Three.js', 'Quantum Physics', 'WebGL'],
+      link: '#'
+    }
+  ];
+  
   return (
     <HomeContainer>
       <HeroSection>
@@ -702,6 +846,31 @@ const Home = () => {
           </Terminal>
         </div>
       </TerminalSection>
+      
+      <CodingProjectsSection>
+        <div className="container">
+          <SectionTitle>Coding Projects</SectionTitle>
+          <CodingProjectsGrid>
+            {codingProjects.map((project, index) => (
+              <CodingProjectCard key={index} className="hover-effect">
+                <CodingProjectTitle>
+                  <span>{project.icon}</span>
+                  {project.title}
+                </CodingProjectTitle>
+                <CodingProjectDescription>{project.description}</CodingProjectDescription>
+                <CodingProjectTech>
+                  {project.tech.map((tech, techIndex) => (
+                    <TechTag key={techIndex}>{tech}</TechTag>
+                  ))}
+                </CodingProjectTech>
+                <CodingProjectLink href={project.link} target={project.link.startsWith('http') ? '_blank' : '_self'} rel={project.link.startsWith('http') ? 'noopener noreferrer' : ''}>
+                  View Project →
+                </CodingProjectLink>
+              </CodingProjectCard>
+            ))}
+          </CodingProjectsGrid>
+        </div>
+      </CodingProjectsSection>
       
       <QuoteSection>
         <div className="container">
