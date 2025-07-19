@@ -24,9 +24,11 @@ function App() {
   
   useEffect(() => {
     // Simulate loading with longer duration for better experience
+    console.log('Loading screen started');
     const timer = setTimeout(() => {
+      console.log('Loading screen finished');
       setLoading(false);
-    }, 4000);
+    }, 6000);
     
     // Konami code: up, up, down, down, left, right, left, right, b, a
     const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
@@ -72,6 +74,7 @@ function App() {
   }, []);
 
   if (loading) {
+    console.log('Rendering LoadingScreen');
     return <LoadingScreen />;
   }
 

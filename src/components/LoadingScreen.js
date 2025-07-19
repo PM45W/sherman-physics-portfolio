@@ -325,6 +325,8 @@ const LoadingScreen = () => {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('Initializing...');
   
+  console.log('LoadingScreen component rendered');
+  
   const mottos = [
     "01010111 01100001 01101011 01101001 01101110 01100111...", // "Waking..." in binary
     "DECRYPTING QUANTUM ENTANGLEMENTS...",
