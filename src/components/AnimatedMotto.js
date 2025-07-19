@@ -35,7 +35,7 @@ const glitchAnimation = keyframes`
 const Word = styled.span`
   display: inline-block;
   animation: ${glitchAnimation} ${props => props.duration || 3}s infinite;
-  animation-delay: ${props => props.index * 0.15}s;
+  animation-delay: ${props => props.$index * 0.15}s;
   position: relative;
   
   &::after {
@@ -79,7 +79,7 @@ const AnimatedMotto = ({ text, fontSize }) => {
       {words.map((word, index) => (
         <React.Fragment key={index}>
           <Word 
-            index={index} 
+            $index={index} 
             duration={(index % 3) + 3}
             data-text={word}
           >

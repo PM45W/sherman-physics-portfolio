@@ -194,7 +194,7 @@ const Particle = styled.div`
   background-color: var(--color-accent-gold);
   border-radius: 50%;
   animation: float 6s ease-in-out infinite;
-  animation-delay: ${props => props.delay}s;
+  animation-delay: ${props => props.$delay}s;
   
   @keyframes float {
     0%, 100% {
@@ -223,7 +223,7 @@ const UnderConstruction = () => {
           <Particle
             key={particle.id}
             style={{ left: `${particle.left}%` }}
-            delay={particle.delay}
+            $delay={particle.delay}
           />
         ))}
       </ParticleContainer>

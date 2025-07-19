@@ -136,7 +136,7 @@ const NameLetter = styled.span`
   display: inline-block;
   opacity: 0;
   animation: ${etchReveal} 0.5s ease-out forwards;
-  animation-delay: ${props => props.delay}s;
+  animation-delay: ${props => props.$delay}s;
   position: relative;
   margin-right: ${props => props.letter === ' ' ? '0.75rem' : '0.3rem'};
   
@@ -155,7 +155,7 @@ const NameLetter = styled.span`
     );
     opacity: 0;
     animation: ${etchReveal} 0.3s ease-out forwards;
-    animation-delay: ${props => props.delay + 0.2}s;
+    animation-delay: ${props => props.$delay + 0.2}s;
   }
 `;
 
@@ -182,7 +182,7 @@ const RedHighlightLetter = styled.span`
   display: inline-block;
   opacity: 0;
   animation: ${redHighlight} 0.8s ease-out forwards;
-  animation-delay: ${props => props.delay}s;
+  animation-delay: ${props => props.$delay}s;
   position: relative;
   margin-right: ${props => props.letter === ' ' ? '0.75rem' : '0.3rem'};
 `;
@@ -275,7 +275,7 @@ function LithographyName({ name = "SHERMAN WONG" }) {
         {letters.map((letter, index) => (
           <RedHighlightLetter 
             key={`red-${index}`} 
-            delay={baseDelay + (index * 0.1) + 0.3}
+            $delay={baseDelay + (index * 0.1) + 0.3}
             letter={letter}
           >
             {letter}
@@ -287,7 +287,7 @@ function LithographyName({ name = "SHERMAN WONG" }) {
         {letters.map((letter, index) => (
           <NameLetter 
             key={index} 
-            delay={baseDelay + (index * 0.1)}
+            $delay={baseDelay + (index * 0.1)}
             letter={letter}
           >
             {letter}

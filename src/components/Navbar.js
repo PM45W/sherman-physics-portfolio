@@ -9,9 +9,9 @@ const NavContainer = styled.header`
   width: 100%;
   z-index: 100;
   transition: all 0.3s ease;
-  background-color: ${props => props.scrolled ? 'rgba(10, 10, 10, 0.9)' : 'transparent'};
-  backdrop-filter: ${props => props.scrolled ? 'blur(10px)' : 'none'};
-  border-bottom: ${props => props.scrolled ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'};
+  background-color: ${props => props.$scrolled ? 'rgba(10, 10, 10, 0.9)' : 'transparent'};
+  backdrop-filter: ${props => props.$scrolled ? 'blur(10px)' : 'none'};
+  border-bottom: ${props => props.$scrolled ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'};
 `;
 
 const NavInner = styled.div`
@@ -89,7 +89,7 @@ const NavLinks = styled.nav`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transform: ${props => props.isOpen ? 'translateX(0)' : 'translateX(100%)'};
+    transform: ${props => props.$isOpen ? 'translateX(0)' : 'translateX(100%)'};
     transition: transform 0.3s ease;
     z-index: 1;
     padding: 2rem 1rem;
@@ -106,7 +106,7 @@ const NavLinks = styled.nav`
 
 const NavLink = styled(Link)`
   font-family: var(--font-mono);
-  color: ${props => props.active ? 'var(--color-accent-gold)' : 'var(--color-text)'};
+  color: ${props => props.$active ? 'var(--color-accent-gold)' : 'var(--color-text)'};
   text-decoration: none;
   position: relative;
   padding: 0.5rem 0;
@@ -122,7 +122,7 @@ const NavLink = styled(Link)`
     width: 100%;
     height: 1px;
     background-color: var(--color-accent-gold);
-    transform: scaleX(${props => props.active ? '1' : '0'});
+    transform: scaleX(${props => props.$active ? '1' : '0'});
     transform-origin: right;
     transition: transform 0.3s ease;
   }
@@ -171,7 +171,7 @@ const Overlay = styled.div`
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
   z-index: 0;
-  display: ${props => props.isOpen ? 'block' : 'none'};
+  display: ${props => props.$isOpen ? 'block' : 'none'};
 `;
 
 const GlitchLogo = styled.span`
@@ -235,7 +235,7 @@ const Navbar = () => {
   };
   
   return (
-    <NavContainer scrolled={scrolled}>
+    <NavContainer $scrolled={scrolled}>
       <NavInner>
         <Logo to="/">
           <GlitchLogo>SW</GlitchLogo> / SHERMAN WONG
@@ -245,28 +245,28 @@ const Navbar = () => {
           {isOpen ? '×' : '☰'}
         </MenuButton>
         
-        <NavLinks isOpen={isOpen}>
-          <NavLink to="/" active={location.pathname === '/'}>
+        <NavLinks $isOpen={isOpen}>
+          <NavLink to="/" $active={location.pathname === '/'}>
             Home
           </NavLink>
-          <NavLink to="/about" active={location.pathname === '/about'}>
+          <NavLink to="/about" $active={location.pathname === '/about'}>
             About
           </NavLink>
-          <NavLink to="/mosfet" active={location.pathname === '/mosfet'}>
+          <NavLink to="/mosfet" $active={location.pathname === '/mosfet'}>
             MOSFET
           </NavLink>
-          <NavLink to="/circuit" active={location.pathname === '/circuit'}>
+          <NavLink to="/circuit" $active={location.pathname === '/circuit'}>
             Circuit
           </NavLink>
-          <NavLink to="/research" active={location.pathname === '/research'}>
+          <NavLink to="/research" $active={location.pathname === '/research'}>
             Research
           </NavLink>
-          <NavLink to="/contact" active={location.pathname === '/contact'}>
+          <NavLink to="/contact" $active={location.pathname === '/contact'}>
             Contact
           </NavLink>
         </NavLinks>
         
-        <Overlay isOpen={isOpen} onClick={() => setIsOpen(false)} />
+        <Overlay $isOpen={isOpen} onClick={() => setIsOpen(false)} />
       </NavInner>
     </NavContainer>
   );

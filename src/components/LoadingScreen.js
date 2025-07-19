@@ -40,7 +40,7 @@ const LoadingBar = styled.div`
     top: 0;
     left: 0;
     height: 100%;
-    width: ${props => props.progress}%;
+    width: ${props => props.$progress}%;
     background: linear-gradient(90deg, #ff0000, #d4af37);
     transition: width 0.3s ease;
   }
@@ -121,7 +121,7 @@ const LoadingScreen = () => {
   return (
     <LoadingContainer>
       <LoadingText className="glitch" data-text="SHERMAN WONG">SHERMAN WONG</LoadingText>
-      <LoadingBar progress={progress} />
+      <LoadingBar $progress={progress} />
       <LoadingStatus>{status}</LoadingStatus>
       <Motto>{motto}</Motto>
       
