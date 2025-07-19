@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 const BuilderContainer = styled.main`
@@ -363,8 +363,6 @@ const CircuitBuilder = () => {
     resistance: 0
   });
   const canvasRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const componentTypes = [
     { type: 'battery', name: 'Battery', icon: '🔋', defaultValue: '12V' },
@@ -510,13 +508,7 @@ const CircuitBuilder = () => {
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
-              const componentType = e.dataTransfer.getData('componentType');
-              if (componentType) {
-                const rect = canvasRef.current.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                // Handle drop logic
-              }
+              // Handle drop logic for future implementation
             }}
           >
             {components.map((component) => (

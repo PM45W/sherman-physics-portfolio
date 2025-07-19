@@ -7,43 +7,65 @@ const EasterEggContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(255, 0, 0, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
   top: 20px;
   right: 20px;
-  background: transparent;
-  border: none;
-  color: var(--color-text);
-  font-size: 2rem;
+  background: rgba(10, 10, 10, 0.8);
+  border: 2px solid var(--color-accent-red);
+  color: var(--color-accent-red);
+  font-size: 1.5rem;
   cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
   
   &:hover {
-    color: var(--color-accent-red);
+    background: var(--color-accent-red);
+    color: var(--color-bg);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
   }
 `;
 
 const GameCanvas = styled.canvas`
-  border: 2px solid var(--color-accent-red);
-  background-color: var(--color-bg);
-  max-width: 800px;
+  border: 3px solid var(--color-accent-gold);
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.8), rgba(10, 10, 10, 0.8));
+  max-width: 900px;
   width: 100%;
-  height: 400px;
+  height: 500px;
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
 `;
 
 const GameTitle = styled.h2`
   font-family: var(--font-mono);
-  color: var(--color-accent-red);
+  color: var(--color-accent-gold);
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 `;
 
 const GameInstructions = styled.p`
@@ -51,7 +73,8 @@ const GameInstructions = styled.p`
   color: var(--color-text);
   margin-top: 1rem;
   text-align: center;
-  max-width: 600px;
+  max-width: 700px;
+  line-height: 1.6;
 `;
 
 const ScoreDisplay = styled.div`
@@ -59,11 +82,90 @@ const ScoreDisplay = styled.div`
   color: var(--color-accent-gold);
   font-size: 1.5rem;
   margin-top: 1rem;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+`;
+
+const PhysicsTip = styled.div`
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(145deg, rgba(10, 10, 10, 0.9), rgba(26, 26, 26, 0.9));
+  border: 2px solid var(--color-accent-gold);
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  opacity: ${props => props.show ? 1 : 0};
+  transform: translateX(-50%) translateY(${props => props.show ? '0' : '20px'});
+  transition: all 0.5s ease;
+  z-index: 10;
+`;
+
+const TipTitle = styled.div`
+  color: var(--color-accent-gold);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+`;
+
+const GameStats = styled.div`
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+`;
+
+const StatItem = styled.div`
+  text-align: center;
+  
+  .value {
+    color: var(--color-accent-gold);
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
 `;
 
 const EasterEgg = ({ onClose }) => {
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
+  const [showTip, setShowTip] = useState(false);
+  const [currentTip, setCurrentTip] = useState(0);
+  const [particles, setParticles] = useState(0);
+  const [tunnels, setTunnels] = useState(0);
+  
+  const physicsTips = [
+    {
+      title: "Quantum Tunneling",
+      text: "Particles can pass through barriers that classical physics says they shouldn't be able to cross!"
+    },
+    {
+      title: "Wave-Particle Duality",
+      text: "Particles behave like both waves and particles - they can interfere with themselves!"
+    },
+    {
+      title: "Heisenberg Uncertainty",
+      text: "The more precisely we know a particle's position, the less precisely we can know its momentum."
+    },
+    {
+      title: "Superposition",
+      text: "Particles can exist in multiple states simultaneously until measured!"
+    },
+    {
+      title: "Quantum Entanglement",
+      text: "Two particles can become connected so that measuring one instantly affects the other, no matter the distance!"
+    }
+  ];
   
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -73,191 +175,261 @@ const EasterEgg = ({ onClose }) => {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     
-    // Ferrari F1 car
-    const car = {
-      x: 50,
-      y: canvas.height / 2,
-      width: 60,
-      height: 30,
-      speed: 0,
-      acceleration: 0.2,
-      maxSpeed: 8,
-      deceleration: 0.1,
-      color: '#FF0000' // Ferrari red
+    // Game state
+    let gameState = {
+      particles: [],
+      barriers: [],
+      score: 0,
+      particlesCreated: 0,
+      successfulTunnels: 0,
+      gameTime: 0
     };
     
-    // Obstacles
-    let obstacles = [];
-    const obstacleWidth = 20;
-    const obstacleSpeed = 5;
-    const obstacleGap = 200;
+    // Physics constants
+    const GRAVITY = 0.2;
+    const PARTICLE_SIZE = 8;
+    const BARRIER_WIDTH = 60;
+    const BARRIER_HEIGHT = 200;
+    const BARRIER_GAP = 120;
     
-    // Controls
-    const keys = {
-      ArrowUp: false,
-      ArrowDown: false,
-      ArrowLeft: false,
-      ArrowRight: false
+    // Particle class
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 4 + 2; // Random velocity with bias forward
+        this.vy = (Math.random() - 0.5) * 4;
+        this.size = PARTICLE_SIZE;
+        this.color = `hsl(${Math.random() * 60 + 200}, 70%, 60%)`; // Blue to purple
+        this.energy = Math.random() * 100 + 50;
+        this.quantumState = Math.random() > 0.7; // 30% chance of quantum tunneling
+        this.tunneling = false;
+        this.tunnelProgress = 0;
+      }
+      
+      update() {
+        // Apply gravity
+        this.vy += GRAVITY;
+        
+        // Update position
+        this.x += this.vx;
+        this.y += this.vy;
+        
+        // Bounce off walls
+        if (this.y + this.size > canvas.height) {
+          this.y = canvas.height - this.size;
+          this.vy *= -0.8;
+        }
+        if (this.y - this.size < 0) {
+          this.y = this.size;
+          this.vy *= -0.8;
+        }
+        
+        // Check barrier collisions
+        gameState.barriers.forEach(barrier => {
+          if (this.x < barrier.x + BARRIER_WIDTH && 
+              this.x + this.size > barrier.x &&
+              this.y < barrier.y + barrier.height &&
+              this.y + this.size > barrier.y) {
+            
+            if (this.quantumState && this.energy > 30) {
+              // Quantum tunneling
+              this.tunneling = true;
+              this.tunnelProgress = 0;
+            } else {
+              // Bounce off barrier
+              this.vx *= -0.8;
+              this.x = barrier.x - this.size;
+            }
+          }
+        });
+        
+        // Handle tunneling
+        if (this.tunneling) {
+          this.tunnelProgress += 0.02;
+          if (this.tunnelProgress >= 1) {
+            this.tunneling = false;
+            this.x += BARRIER_WIDTH + 10;
+            gameState.successfulTunnels++;
+            setTunnels(gameState.successfulTunnels);
+          }
+        }
+        
+        // Remove particles that go off screen
+        if (this.x > canvas.width + 50) {
+          gameState.score++;
+          setScore(gameState.score);
+        }
+      }
+      
+      draw() {
+        ctx.save();
+        
+        if (this.tunneling) {
+          // Draw tunneling effect
+          ctx.globalAlpha = 0.3 + 0.7 * Math.sin(this.tunnelProgress * Math.PI * 4);
+          ctx.fillStyle = `hsl(${Math.random() * 60 + 200}, 100%, 70%)`;
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = this.color;
+        } else {
+          ctx.fillStyle = this.color;
+          ctx.shadowBlur = 5;
+          ctx.shadowColor = this.color;
+        }
+        
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw energy indicator
+        ctx.fillStyle = `hsl(${this.energy * 2.4}, 70%, 60%)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+      }
+    }
+    
+    // Barrier class
+    class Barrier {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.height = BARRIER_HEIGHT;
+        this.opacity = 0.8;
+      }
+      
+      draw() {
+        ctx.save();
+        ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(212, 175, 55, 0.5)';
+        ctx.fillRect(this.x, this.y, BARRIER_WIDTH, this.height);
+        ctx.restore();
+      }
+    }
+    
+    // Create barriers
+    const createBarriers = () => {
+      const barrierY = canvas.height / 2 - BARRIER_HEIGHT / 2;
+      gameState.barriers = [
+        new Barrier(canvas.width * 0.3, barrierY),
+        new Barrier(canvas.width * 0.6, barrierY)
+      ];
     };
     
-    // Event listeners
-    window.addEventListener('keydown', (e) => {
-      if (keys.hasOwnProperty(e.key)) {
-        keys[e.key] = true;
+    // Create particle
+    const createParticle = () => {
+      if (gameState.particles.length < 20) {
+        const particle = new Particle(50, Math.random() * canvas.height);
+        gameState.particles.push(particle);
+        gameState.particlesCreated++;
+        setParticles(gameState.particlesCreated);
       }
-    });
+    };
     
-    window.addEventListener('keyup', (e) => {
-      if (keys.hasOwnProperty(e.key)) {
-        keys[e.key] = false;
-      }
-    });
+    // Initialize game
+    createBarriers();
     
     // Game loop
     let animationId;
     let frameCount = 0;
     
-    const createObstacle = () => {
-      const gapPosition = Math.random() * (canvas.height - obstacleGap);
-      
-      obstacles.push({
-        x: canvas.width,
-        y: 0,
-        width: obstacleWidth,
-        height: gapPosition,
-        passed: false
-      });
-      
-      obstacles.push({
-        x: canvas.width,
-        y: gapPosition + obstacleGap,
-        width: obstacleWidth,
-        height: canvas.height - gapPosition - obstacleGap,
-        passed: false
-      });
-    };
-    
-    const drawCar = () => {
-      // Draw car body
-      ctx.fillStyle = car.color;
-      ctx.fillRect(car.x, car.y, car.width, car.height);
-      
-      // Draw wheels
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(car.x + 10, car.y - 5, 10, 5);
-      ctx.fillRect(car.x + 40, car.y - 5, 10, 5);
-      ctx.fillRect(car.x + 10, car.y + car.height, 10, 5);
-      ctx.fillRect(car.x + 40, car.y + car.height, 10, 5);
-      
-      // Draw Ferrari logo
-      ctx.fillStyle = '#FFCC00';
-      ctx.fillRect(car.x + 25, car.y + 10, 10, 10);
-    };
-    
-    const drawObstacles = () => {
-      obstacles.forEach(obstacle => {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-      });
-    };
-    
-    const updateGame = () => {
+    const gameLoop = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw background
-      ctx.fillStyle = '#0A0A0A';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw track
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.setLineDash([5, 15]);
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      ctx.lineTo(canvas.width, canvas.height / 2);
-      ctx.stroke();
-      
-      // Update car position based on keys
-      if (keys.ArrowUp) {
-        car.y -= 5;
+      // Draw background grid
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < canvas.width; i += 30) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.stroke();
       }
-      if (keys.ArrowDown) {
-        car.y += 5;
-      }
-      if (keys.ArrowRight) {
-        car.speed = Math.min(car.speed + car.acceleration, car.maxSpeed);
-      } else if (keys.ArrowLeft) {
-        car.speed = Math.max(car.speed - car.acceleration, 0);
-      } else {
-        car.speed = Math.max(car.speed - car.deceleration, 0);
+      for (let i = 0; i < canvas.height; i += 30) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(canvas.width, i);
+        ctx.stroke();
       }
       
-      // Keep car within canvas
-      car.y = Math.max(0, Math.min(canvas.height - car.height, car.y));
+      // Update and draw barriers
+      gameState.barriers.forEach(barrier => barrier.draw());
       
-      // Create obstacles
-      if (frameCount % 100 === 0) {
-        createObstacle();
+      // Create particles periodically
+      if (frameCount % 60 === 0) {
+        createParticle();
       }
       
-      // Update obstacles
-      obstacles = obstacles.filter(obstacle => {
-        obstacle.x -= obstacleSpeed;
-        
-        // Check if car passed obstacle
-        if (!obstacle.passed && obstacle.x + obstacle.width < car.x) {
-          obstacle.passed = true;
-          setScore(prevScore => prevScore + 1);
-        }
-        
-        // Check collision
-        if (
-          car.x < obstacle.x + obstacle.width &&
-          car.x + car.width > obstacle.x &&
-          car.y < obstacle.y + obstacle.height &&
-          car.y + car.height > obstacle.y
-        ) {
-          // Game over
-          cancelAnimationFrame(animationId);
-          return false;
-        }
-        
-        return obstacle.x + obstacle.width > 0;
+      // Update and draw particles
+      gameState.particles = gameState.particles.filter(particle => {
+        particle.update();
+        particle.draw();
+        return particle.x < canvas.width + 100 && particle.y > -50;
       });
       
-      // Draw game elements
-      drawObstacles();
-      drawCar();
-      
-      // Draw speed indicator
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = '14px monospace';
-      ctx.fillText(`Speed: ${Math.floor(car.speed * 30)} km/h`, 20, 30);
+      // Update game time
+      gameState.gameTime++;
       
       frameCount++;
-      animationId = requestAnimationFrame(updateGame);
+      animationId = requestAnimationFrame(gameLoop);
     };
     
     // Start game
-    updateGame();
+    gameLoop();
     
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('keydown', () => {});
-      window.removeEventListener('keyup', () => {});
     };
   }, []);
+  
+  // Show physics tips periodically
+  useEffect(() => {
+    const tipInterval = setInterval(() => {
+      setShowTip(true);
+      setCurrentTip(Math.floor(Math.random() * physicsTips.length));
+      
+      setTimeout(() => {
+        setShowTip(false);
+      }, 5000);
+    }, 60000); // Show tip every minute
+    
+    return () => clearInterval(tipInterval);
+  }, [physicsTips.length]);
   
   return (
     <EasterEggContainer>
       <CloseButton onClick={onClose}>×</CloseButton>
-      <GameTitle>Ferrari F1 Challenge</GameTitle>
+      <GameTitle>Quantum Particle Collider</GameTitle>
       <GameCanvas ref={canvasRef} />
-      <ScoreDisplay>Score: {score}</ScoreDisplay>
       <GameInstructions>
-        Use arrow keys to control the Ferrari F1 car. ↑ and ↓ to move up and down.
-        → to accelerate, ← to decelerate. Avoid the obstacles!
+        Watch quantum particles tunnel through barriers! Particles with high energy can quantum tunnel through barriers.
+        <br />
+        Use your knowledge of quantum mechanics to understand the physics behind the simulation.
       </GameInstructions>
+      
+      <GameStats>
+        <StatItem>
+          <div className="value">{score}</div>
+          <div className="label">Particles Escaped</div>
+        </StatItem>
+        <StatItem>
+          <div className="value">{particles}</div>
+          <div className="label">Particles Created</div>
+        </StatItem>
+        <StatItem>
+          <div className="value">{tunnels}</div>
+          <div className="label">Quantum Tunnels</div>
+        </StatItem>
+      </GameStats>
+      
+      <PhysicsTip show={showTip}>
+        <TipTitle>{physicsTips[currentTip].title}</TipTitle>
+        {physicsTips[currentTip].text}
+      </PhysicsTip>
     </EasterEggContainer>
   );
 };
