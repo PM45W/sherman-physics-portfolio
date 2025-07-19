@@ -411,6 +411,21 @@ const TerminalContent = styled.div`
   font-family: var(--font-mono);
   font-size: 0.9rem;
   line-height: 1.6;
+  height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  
+  @media (max-width: 768px) {
+    height: 250px;
+    padding: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    height: 200px;
+    padding: 0.8rem;
+  }
 `;
 
 const TerminalLine = styled.div`
