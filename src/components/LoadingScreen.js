@@ -1,106 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-
-const LoadingContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #0a0a0a;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  overflow: hidden;
-`;
-
-const LoadingText = styled.div`
-  font-family: 'Space Mono', monospace;
-  font-size: 3rem;
-  margin-bottom: 2rem;
-  color: #f5f5f5;
-  position: relative;
-  z-index: 1;
-`;
-
-const LoadingBar = styled.div`
-  width: 300px;
-  height: 8px;
-  background-color: #333333;
-  position: relative;
-  overflow: hidden;
-  border-radius: 4px;
-  z-index: 1;
-  border: 1px solid #555555;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: ${props => props.$progress}%;
-    background: linear-gradient(90deg, #ff0000, #d4af37);
-    transition: width 0.3s ease;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: shimmer 2s infinite;
-  }
-  
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-`;
-
-const LoadingStatus = styled.div`
-  font-family: 'Space Mono', monospace;
-  font-size: 0.9rem;
-  margin-top: 1rem;
-  color: #f5f5f5;
-  opacity: 0.7;
-  z-index: 1;
-  text-align: center;
-`;
-
-const ProgressText = styled.div`
-  font-family: 'Space Mono', monospace;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #d4af37;
-  margin-bottom: 0.5rem;
-  z-index: 1;
-  text-align: center;
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-`;
-
-const Motto = styled.div`
-  position: absolute;
-  bottom: 2rem;
-  font-family: 'Space Mono', monospace;
-  font-style: italic;
-  color: #d4af37;
-  opacity: 0.7;
-  text-align: center;
-  max-width: 80%;
-  z-index: 1;
-`;
 
 
 
@@ -160,12 +58,81 @@ const LoadingScreen = () => {
   }, []);
   
   return (
-    <LoadingContainer>
-      <LoadingText className="glitch" data-text="SHERMAN WONG">SHERMAN WONG</LoadingText>
-      <ProgressText>{progress}%</ProgressText>
-      <LoadingBar $progress={progress} />
-      <LoadingStatus>{status}</LoadingStatus>
-      <Motto>{motto}</Motto>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: '#0a0a0a',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999,
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        fontSize: '3rem',
+        marginBottom: '2rem',
+        color: '#f5f5f5',
+        fontFamily: 'monospace'
+      }}>
+        SHERMAN WONG
+      </div>
+      
+      <div style={{
+        fontSize: '1.2rem',
+        fontWeight: 'bold',
+        color: '#d4af37',
+        marginBottom: '0.5rem',
+        fontFamily: 'monospace'
+      }}>
+        {progress}%
+      </div>
+      
+      <div style={{
+        width: '300px',
+        height: '8px',
+        backgroundColor: '#333333',
+        borderRadius: '4px',
+        border: '1px solid #555555',
+        overflow: 'hidden',
+        position: 'relative'
+      }}>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          height: '100%',
+          width: `${progress}%`,
+          background: 'linear-gradient(90deg, #ff0000, #d4af37)',
+          transition: 'width 0.3s ease'
+        }} />
+      </div>
+      
+      <div style={{
+        fontSize: '0.9rem',
+        marginTop: '1rem',
+        color: '#f5f5f5',
+        opacity: 0.7,
+        fontFamily: 'monospace'
+      }}>
+        {status}
+      </div>
+      
+      <div style={{
+        position: 'absolute',
+        bottom: '2rem',
+        fontFamily: 'monospace',
+        fontStyle: 'italic',
+        color: '#d4af37',
+        opacity: 0.7,
+        textAlign: 'center',
+        maxWidth: '80%'
+      }}>
+        {motto}
+      </div>
       
       {/* Debug info */}
       <div style={{ 
@@ -193,7 +160,7 @@ const LoadingScreen = () => {
       }}>
         LOADING SCREEN TEST - {progress}%
       </div>
-    </LoadingContainer>
+    </div>
   );
 };
 
