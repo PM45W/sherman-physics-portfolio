@@ -340,7 +340,7 @@ const LoadingScreen = () => {
   const [motto] = useState(mottos[Math.floor(Math.random() * mottos.length)]);
   
   // Generate stars for the star field
-  const stars = Array.from({ length: 50 }, (_, i) => ({
+  const stars = Array.from({ length: 20 }, (_, i) => ({
     id: i,
     left: Math.random() * 100,
     top: Math.random() * 100,
@@ -348,6 +348,7 @@ const LoadingScreen = () => {
   }));
   
   useEffect(() => {
+    console.log('LoadingScreen useEffect triggered');
     const statuses = [
       'Initializing...',
       'Loading quantum states...',
@@ -371,7 +372,7 @@ const LoadingScreen = () => {
       
       const statusIndex = Math.floor((currentProgress / 100) * (statuses.length - 1));
       setStatus(statuses[statusIndex]);
-    }, 150);
+    }, 200);
     
     return () => clearInterval(interval);
   }, []);
@@ -406,6 +407,18 @@ const LoadingScreen = () => {
       <LoadingBar progress={progress} />
       <LoadingStatus>{status}</LoadingStatus>
       <Motto>{motto}</Motto>
+      
+      {/* Debug info */}
+      <div style={{ 
+        position: 'absolute', 
+        top: '10px', 
+        left: '10px', 
+        color: 'red', 
+        fontSize: '12px',
+        zIndex: 9999 
+      }}>
+        LoadingScreen Active - Progress: {progress}%
+      </div>
     </LoadingContainer>
   );
 };

@@ -21,6 +21,7 @@ function App() {
   
   // Use konami state to prevent unused variable warning
   console.log('Konami sequence length:', konami.length);
+  console.log('Current loading state:', loading);
   
   useEffect(() => {
     // Simulate loading with longer duration for better experience
@@ -28,7 +29,7 @@ function App() {
     const timer = setTimeout(() => {
       console.log('Loading screen finished');
       setLoading(false);
-    }, 6000);
+    }, 8000);
     
     // Konami code: up, up, down, down, left, right, left, right, b, a
     const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
@@ -73,7 +74,10 @@ function App() {
     };
   }, []);
 
-  if (loading) {
+  // Force loading screen for testing
+  const forceLoading = true;
+  
+  if (loading || forceLoading) {
     console.log('Rendering LoadingScreen');
     return <LoadingScreen />;
   }
