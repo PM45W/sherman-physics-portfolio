@@ -1016,6 +1016,22 @@ input:checked + .toggle-slider:before {
   * {
     -webkit-overflow-scrolling: touch !important;
   }
+  
+  /* Loading screen mobile optimizations */
+  .loading-screen {
+    padding: 1rem !important;
+  }
+  
+  /* Reduce particle count on mobile for better performance */
+  .loading-particles {
+    display: none !important;
+  }
+  
+  /* Optimize progress bar for mobile */
+  .progress-bar {
+    width: 90vw !important;
+    max-width: 300px !important;
+  }
 }
 
 /* Extra small device fixes */
