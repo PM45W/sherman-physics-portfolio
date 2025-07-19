@@ -415,7 +415,6 @@ const TerminalContent = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   
   @media (max-width: 768px) {
     height: 250px;
@@ -487,27 +486,29 @@ const Quote = styled.blockquote`
   &::before {
     content: '"';
     font-family: var(--font-mono);
-    font-size: 4rem;
+    font-size: 3rem;
     color: var(--color-accent-gold);
     position: absolute;
-    top: -0.5rem;
-    left: 1rem;
+    top: 0.5rem;
+    left: 0.5rem;
     background-color: var(--color-gray-dark);
-    padding: 0 0.5rem;
+    padding: 0 0.3rem;
     z-index: 1;
+    line-height: 1;
   }
   
   &::after {
     content: '"';
     font-family: var(--font-mono);
-    font-size: 4rem;
+    font-size: 3rem;
     color: var(--color-accent-gold);
     position: absolute;
-    bottom: -0.5rem;
-    right: 1rem;
+    bottom: 0.5rem;
+    right: 0.5rem;
     background-color: var(--color-gray-dark);
-    padding: 0 0.5rem;
+    padding: 0 0.3rem;
     z-index: 1;
+    line-height: 1;
   }
   
   @media (max-width: 768px) {
@@ -580,6 +581,17 @@ const Home = () => {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [terminalLines, currentLine]);
+  
+  // Auto-scroll to bottom when new content is added
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (terminalRef.current) {
+        terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [terminalLines.length]);
   
   const scrollToProjects = () => {
     document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
