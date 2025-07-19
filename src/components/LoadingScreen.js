@@ -108,7 +108,7 @@ const LoadingScreen = () => {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('Initializing...');
   
-  console.log('LoadingScreen component rendered');
+  console.log('LoadingScreen component rendered - Progress:', progress);
   
   const mottos = [
     "01010111 01100001 01101011 01101001 01101110 01100111...", // "Waking..." in binary
@@ -123,7 +123,8 @@ const LoadingScreen = () => {
   const [motto] = useState(mottos[Math.floor(Math.random() * mottos.length)]);
   
   useEffect(() => {
-    console.log('LoadingScreen useEffect triggered');
+    console.log('LoadingScreen useEffect triggered - Starting progress');
+    
     const statuses = [
       'Initializing...',
       'Loading quantum states...',
@@ -137,6 +138,7 @@ const LoadingScreen = () => {
     let currentProgress = 0;
     const interval = setInterval(() => {
       if (currentProgress >= 100) {
+        console.log('Progress complete - clearing interval');
         clearInterval(interval);
         return;
       }
@@ -151,7 +153,10 @@ const LoadingScreen = () => {
       setStatus(statuses[statusIndex]);
     }, 150);
     
-    return () => clearInterval(interval);
+    return () => {
+      console.log('LoadingScreen useEffect cleanup');
+      clearInterval(interval);
+    };
   }, []);
   
   return (
@@ -172,6 +177,21 @@ const LoadingScreen = () => {
         zIndex: 9999 
       }}>
         LoadingScreen Active - Progress: {progress}%
+      </div>
+      
+      {/* Simple fallback for testing */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        backgroundColor: 'red',
+        color: 'white',
+        padding: '20px',
+        fontSize: '24px',
+        zIndex: 10000
+      }}>
+        LOADING SCREEN TEST - {progress}%
       </div>
     </LoadingContainer>
   );
