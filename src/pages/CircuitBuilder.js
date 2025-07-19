@@ -1,21 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import ReactFlow, {
-  addEdge,
-  useNodesState,
-  useEdgesState,
-  Controls,
-  Background,
-  MiniMap,
-  useReactFlow,
-  ReactFlowProvider,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 
 const BuilderContainer = styled.main`
   min-height: 100vh;
   padding: 100px 2rem 2rem;
   position: relative;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
 `;
 
 const GridBackground = styled.div`
@@ -25,11 +15,18 @@ const GridBackground = styled.div`
   width: 100%;
   height: 100%;
   background-image: 
-    linear-gradient(rgba(26, 26, 26, 0.5) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(26, 26, 26, 0.5) 1px, transparent 1px);
-  background-size: 30px 30px;
+    radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 0, 0, 0.1) 0%, transparent 50%),
+    linear-gradient(rgba(26, 26, 26, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 26, 26, 0.3) 1px, transparent 1px);
+  background-size: 200px 200px, 200px 200px, 30px 30px, 30px 30px;
   z-index: -1;
-  opacity: 0.2;
+  animation: gridMove 20s linear infinite;
+  
+  @keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, 30px); }
+  }
 `;
 
 const Title = styled.h1`
@@ -38,6 +35,8 @@ const Title = styled.h1`
   margin-bottom: 2rem;
   position: relative;
   display: inline-block;
+  color: var(--color-accent-gold);
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
   
   &::after {
     content: '';
@@ -47,6 +46,7 @@ const Title = styled.h1`
     width: 100px;
     height: 4px;
     background: linear-gradient(90deg, var(--color-accent-red), var(--color-accent-gold));
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
   }
 `;
 
@@ -55,15 +55,20 @@ const BuilderDescription = styled.p`
   margin-bottom: 3rem;
   opacity: 0.8;
   font-size: 1.1rem;
+  color: var(--color-text);
 `;
 
 const BuilderLayout = styled.div`
   display: grid;
-  grid-template-columns: 250px 1fr 300px;
+  grid-template-columns: 280px 1fr 320px;
   gap: 2rem;
-  height: 70vh;
-  max-width: 1400px;
+  height: 75vh;
+  max-width: 1600px;
   margin: 0 auto;
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: 250px 1fr 280px;
+  }
   
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
@@ -73,12 +78,30 @@ const BuilderLayout = styled.div`
 `;
 
 const ComponentPalette = styled.div`
-  background-color: rgba(10, 10, 10, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, rgba(10, 10, 10, 0.9), rgba(26, 26, 26, 0.9));
+  border: 2px solid rgba(212, 175, 55, 0.3);
   padding: 1.5rem;
-  border-radius: 5px;
-  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  backdrop-filter: blur(20px);
   overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-accent-gold), transparent);
+    animation: scanLine 3s ease-in-out infinite;
+  }
+  
+  @keyframes scanLine {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
   
   @media (max-width: 1024px) {
     height: 200px;
@@ -89,91 +112,41 @@ const ComponentPalette = styled.div`
   }
 `;
 
-const FlowContainer = styled.div`
-  background-color: rgba(26, 26, 26, 0.5);
-  border: 2px dashed rgba(255, 255, 255, 0.2);
-  border-radius: 5px;
-  height: 70vh;
+const CircuitCanvas = styled.div`
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.8), rgba(10, 10, 10, 0.8));
+  border: 3px solid rgba(212, 175, 55, 0.4);
+  border-radius: 15px;
+  height: 75vh;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 0, 0, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
   
   @media (max-width: 1024px) {
-    height: 50vh;
-  }
-  
-  .react-flow__node {
-    background-color: rgba(26, 26, 26, 0.9);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 1rem;
-    min-width: 120px;
-    text-align: center;
-    transition: all 0.3s ease;
-    
-    &:hover {
-      border-color: var(--color-accent-gold);
-      transform: translateY(-2px);
-    }
-    
-    &.selected {
-      border-color: var(--color-accent-gold);
-      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-    }
-  }
-  
-  .react-flow__handle {
-    width: 12px;
-    height: 12px;
-    background-color: var(--color-accent-gold);
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    
-    &:hover {
-      background-color: var(--color-accent-red);
-      transform: scale(1.2);
-    }
-  }
-  
-  .react-flow__edge-path {
-    stroke: var(--color-accent-gold);
-    stroke-width: 3;
-    stroke-dasharray: none;
-  }
-  
-  .react-flow__edge.selected .react-flow__edge-path {
-    stroke: var(--color-accent-red);
-    stroke-width: 4;
-  }
-  
-  .react-flow__controls {
-    background-color: rgba(10, 10, 10, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
-  }
-  
-  .react-flow__controls-button {
-    background-color: rgba(26, 26, 26, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--color-text);
-    
-    &:hover {
-      background-color: var(--color-accent-gold);
-      color: var(--color-bg);
-    }
-  }
-  
-  .react-flow__minimap {
-    background-color: rgba(10, 10, 10, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 5px;
+    height: 60vh;
   }
 `;
 
 const PropertiesPanel = styled.div`
-  background-color: rgba(10, 10, 10, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, rgba(10, 10, 10, 0.9), rgba(26, 26, 26, 0.9));
+  border: 2px solid rgba(212, 175, 55, 0.3);
   padding: 1.5rem;
-  border-radius: 5px;
-  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  backdrop-filter: blur(20px);
   overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 `;
 
 const PaletteTitle = styled.h3`
@@ -183,6 +156,7 @@ const PaletteTitle = styled.h3`
   font-size: 1.2rem;
   position: relative;
   display: inline-block;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
   
   &::after {
     content: '';
@@ -192,35 +166,55 @@ const PaletteTitle = styled.h3`
     width: 40px;
     height: 2px;
     background: var(--color-accent-gold);
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
   }
+`;
+
+const ComponentGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
   
   @media (max-width: 1024px) {
-    margin-bottom: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    min-width: 600px;
   }
 `;
 
 const ComponentItem = styled.div`
-  background-color: rgba(26, 26, 26, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.8), rgba(10, 10, 10, 0.8));
+  border: 2px solid rgba(212, 175, 55, 0.2);
+  border-radius: 10px;
   padding: 1rem;
-  margin-bottom: 1rem;
+  text-align: center;
   cursor: grab;
   transition: all 0.3s ease;
-  text-align: center;
+  position: relative;
+  overflow: hidden;
   
   &:hover {
     border-color: var(--color-accent-gold);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2);
   }
   
   &:active {
     cursor: grabbing;
   }
   
-  @media (max-width: 1024px) {
-    margin-bottom: 0;
-    min-width: 100px;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+    transition: left 0.5s;
+  }
+  
+  &:hover::before {
+    left: 100%;
   }
 `;
 
@@ -232,324 +226,243 @@ const ComponentIcon = styled.div`
 const ComponentName = styled.div`
   font-family: var(--font-mono);
   font-size: 0.8rem;
+  color: var(--color-text);
 `;
 
-const PropertyGroup = styled.div`
-  margin-bottom: 2rem;
-`;
-
-const PropertyTitle = styled.h4`
-  font-family: var(--font-mono);
-  color: var(--color-accent-gold);
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  position: relative;
-  display: inline-block;
+const CircuitComponent = styled.div`
+  position: absolute;
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.9), rgba(10, 10, 10, 0.9));
+  border: 2px solid ${props => props.isSelected ? 'var(--color-accent-gold)' : 'rgba(212, 175, 55, 0.3)'};
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: move;
+  user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: ${props => props.isSelected ? '0 0 20px rgba(212, 175, 55, 0.3)' : '0 4px 15px rgba(0, 0, 0, 0.2)'};
   
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 30px;
-    height: 2px;
-    background: var(--color-accent-gold);
+  &:hover {
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
   }
 `;
 
-const PropertyItem = styled.div`
-  margin-bottom: 1rem;
+const ComponentValue = styled.div`
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-accent-gold);
+  text-align: center;
+  margin-top: 0.5rem;
+`;
+
+const Wire = styled.div`
+  position: absolute;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-gold), var(--color-accent-red));
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  pointer-events: none;
+  z-index: 1;
+`;
+
+const ControlPanel = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+`;
+
+const ControlButton = styled.button`
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.8), rgba(10, 10, 10, 0.8));
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  color: var(--color-accent-gold);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--color-accent-gold);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const PropertyGroup = styled.div`
+  margin-bottom: 1.5rem;
 `;
 
 const PropertyLabel = styled.label`
   display: block;
-  margin-bottom: 0.5rem;
   font-family: var(--font-mono);
+  color: var(--color-accent-gold);
+  margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: var(--color-text);
 `;
 
 const PropertyInput = styled.input`
   width: 100%;
-  padding: 0.8rem;
-  background-color: rgba(26, 26, 26, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 26, 0.8);
+  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: 5px;
+  padding: 0.5rem;
   color: var(--color-text);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
   
   &:focus {
     outline: none;
     border-color: var(--color-accent-gold);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
   }
 `;
 
-const ActionButton = styled.button`
-  width: 100%;
+const SimulationPanel = styled.div`
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.8), rgba(10, 10, 10, 0.8));
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 10px;
   padding: 1rem;
-  margin-bottom: 1rem;
-  background-color: ${props => props.secondary ? 'transparent' : 'var(--color-accent-gold)'};
-  border: 1px solid var(--color-accent-gold);
-  color: ${props => props.secondary ? 'var(--color-accent-gold)' : 'var(--color-bg)'};
+  margin-top: 1rem;
+`;
+
+const SimulationValue = styled.div`
   font-family: var(--font-mono);
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 5px;
+  color: var(--color-accent-gold);
+  font-size: 1.1rem;
+  text-align: center;
+  margin: 0.5rem 0;
+`;
+
+const PowerIndicator = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: ${props => props.isOn ? 'var(--color-accent-gold)' : 'rgba(255, 255, 255, 0.2)'};
+  box-shadow: ${props => props.isOn ? '0 0 10px rgba(212, 175, 55, 0.5)' : 'none'};
+  animation: ${props => props.isOn ? 'pulse 1s ease-in-out infinite' : 'none'};
   
-  &:hover {
-    background-color: ${props => props.secondary ? 'var(--color-accent-gold)' : 'var(--color-accent-red)'};
-    color: var(--color-bg);
-    border-color: ${props => props.secondary ? 'var(--color-accent-gold)' : 'var(--color-accent-red)'};
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
   }
 `;
 
-const ResultsPanel = styled.div`
-  background-color: rgba(26, 26, 26, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  padding: 1rem;
-`;
+const CircuitBuilder = () => {
+  const [components, setComponents] = useState([]);
+  const [wires, setWires] = useState([]);
+  const [selectedComponent, setSelectedComponent] = useState(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationValues, setSimulationValues] = useState({
+    voltage: 0,
+    current: 0,
+    power: 0,
+    resistance: 0
+  });
+  const canvasRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-const ResultItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-`;
-
-const ResultLabel = styled.span`
-  color: var(--color-text);
-`;
-
-const ResultValue = styled.span`
-  color: var(--color-accent-gold);
-  font-weight: bold;
-`;
-
-const InstructionsPanel = styled.div`
-  background-color: rgba(26, 26, 26, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  padding: 1rem;
-`;
-
-const InstructionItem = styled.div`
-  display: flex;
-  margin-bottom: 0.8rem;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-`;
-
-const InstructionNumber = styled.span`
-  color: var(--color-accent-gold);
-  margin-right: 0.5rem;
-  font-weight: bold;
-`;
-
-const InstructionText = styled.span`
-  color: var(--color-text);
-`;
-
-// Custom node component for circuit components
-const CircuitNode = ({ data, selected }) => {
-  return (
-    <div className={`circuit-node ${selected ? 'selected' : ''}`}>
-      <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{data.icon}</div>
-      <div style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)', marginBottom: '0.3rem' }}>
-        {data.symbol}
-      </div>
-      <div style={{ fontSize: '0.7rem', opacity: 0.8 }}>
-        {data.value}
-      </div>
-    </div>
-  );
-};
-
-// Component types with their properties
   const componentTypes = [
-  {
-    id: 'resistor',
-    name: 'Resistor',
-    icon: '⚡',
-    symbol: 'R',
-    value: '1kΩ',
-    type: 'resistor',
-    resistance: 1000
-  },
-  {
-    id: 'capacitor',
-    name: 'Capacitor',
-    icon: '⚡',
-    symbol: 'C',
-    value: '1μF',
-    type: 'capacitor',
-    capacitance: 0.000001
-  },
-  {
-    id: 'inductor',
-    name: 'Inductor',
-    icon: '⚡',
-    symbol: 'L',
-    value: '1mH',
-    type: 'inductor',
-    inductance: 0.001
-  },
-  {
-    id: 'voltage-source',
-    name: 'Voltage Source',
-    icon: '🔋',
-    symbol: 'V',
-    value: '5V',
-    type: 'voltage-source',
-    voltage: 5
-  },
-  {
-    id: 'current-source',
-    name: 'Current Source',
-    icon: '⚡',
-    symbol: 'I',
-    value: '1A',
-    type: 'current-source',
-    current: 1
-  },
-  {
-    id: 'led',
-    name: 'LED',
-    icon: '💡',
-    symbol: 'LED',
-    value: 'Red',
-    type: 'led',
-    forwardVoltage: 2
-  }
-];
+    { type: 'battery', name: 'Battery', icon: '🔋', defaultValue: '12V' },
+    { type: 'resistor', name: 'Resistor', icon: '⚡', defaultValue: '100Ω' },
+    { type: 'led', name: 'LED', icon: '💡', defaultValue: '2V' },
+    { type: 'switch', name: 'Switch', icon: '🔘', defaultValue: 'OFF' },
+    { type: 'capacitor', name: 'Capacitor', icon: '⚡', defaultValue: '100μF' },
+    { type: 'voltmeter', name: 'Voltmeter', icon: '📊', defaultValue: '0V' },
+    { type: 'ammeter', name: 'Ammeter', icon: '📊', defaultValue: '0A' },
+    { type: 'wire', name: 'Wire', icon: '🔗', defaultValue: '0Ω' }
+  ];
 
-const nodeTypes = {
-  circuit: CircuitNode,
-};
-
-function CircuitBuilderContent() {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [analysis, setAnalysis] = useState(null);
-  const { project } = useReactFlow();
-
-  // Handle edge connections
-  const onConnect = useCallback(
-    (params) => {
-      setEdges((eds) => addEdge(params, eds));
-    },
-    [setEdges]
-  );
-
-  // Handle node selection
-  const onNodeClick = useCallback((event, node) => {
-    setSelectedNode(node);
-  }, []);
-
-  // Handle node deselection
-  const onPaneClick = useCallback(() => {
-    setSelectedNode(null);
-  }, []);
-
-  // Add component to canvas
-  const onDragStart = (event, componentType) => {
-    event.dataTransfer.setData('application/reactflow', JSON.stringify(componentType));
-    event.dataTransfer.effectAllowed = 'move';
-  };
-
-  // Handle drop on canvas
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-
-      const componentType = JSON.parse(event.dataTransfer.getData('application/reactflow'));
-      const position = project({ x: event.clientX, y: event.clientY });
-
-      const newNode = {
-        id: `${componentType.id}-${Date.now()}`,
-        type: 'circuit',
-        position,
-        data: { ...componentType },
-        sourcePosition: 'right',
-        targetPosition: 'left',
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [project, setNodes]
-  );
-
-  const onDragOver = useCallback((event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  // Update node data
-  const updateNodeData = (nodeId, newData) => {
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === nodeId) {
-          return {
-            ...node,
-            data: { ...node.data, ...newData },
-          };
-        }
-        return node;
-      })
-    );
-  };
-
-  // Clear canvas
-  const clearCanvas = () => {
-    setNodes([]);
-    setEdges([]);
-    setSelectedNode(null);
-    setAnalysis(null);
-  };
-
-  // Analyze circuit
-  const analyzeCircuit = () => {
-    if (nodes.length === 0) {
-      setAnalysis({ error: 'No components on canvas' });
-      return;
-    }
+  const handleDragStart = (e, componentType) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     
-    try {
-      // Simple circuit analysis - find voltage sources and calculate basic properties
-      const voltageSources = nodes.filter(node => node.data.type === 'voltage-source');
-      const resistors = nodes.filter(node => node.data.type === 'resistor');
-      
-      if (voltageSources.length === 0) {
-        setAnalysis({ error: 'No voltage source found in circuit' });
-      return;
+    const newComponent = {
+      id: Date.now(),
+      type: componentType.type,
+      name: componentType.name,
+      icon: componentType.icon,
+      value: componentType.defaultValue,
+      x: x,
+      y: y,
+      isSelected: false
+    };
+    
+    setComponents(prev => [...prev, newComponent]);
+  };
+
+  const handleComponentClick = (componentId) => {
+    setComponents(prev => prev.map(comp => ({
+      ...comp,
+      isSelected: comp.id === componentId
+    })));
+    setSelectedComponent(components.find(comp => comp.id === componentId));
+  };
+
+  const handleCanvasClick = (e) => {
+    if (e.target === canvasRef.current) {
+      setSelectedComponent(null);
+      setComponents(prev => prev.map(comp => ({ ...comp, isSelected: false })));
     }
+  };
 
-      const totalVoltage = voltageSources.reduce((sum, source) => sum + (source.data.voltage || 0), 0);
-      const totalResistance = resistors.reduce((sum, resistor) => sum + (resistor.data.resistance || 0), 0);
-      
-      if (totalResistance === 0) {
-        setAnalysis({ error: 'No resistors found in circuit' });
-        return;
-      }
-      
-      const current = (totalVoltage / totalResistance) * 1000; // Convert to mA
-      const power = (totalVoltage * totalVoltage / totalResistance) * 1000; // Convert to mW
+  const updateComponentValue = (componentId, newValue) => {
+    setComponents(prev => prev.map(comp => 
+      comp.id === componentId ? { ...comp, value: newValue } : comp
+    ));
+  };
 
-      setAnalysis({
-        totalResistance: totalResistance.toFixed(2),
-        current: current.toFixed(2),
+  const deleteComponent = (componentId) => {
+    setComponents(prev => prev.filter(comp => comp.id !== componentId));
+    setWires(prev => prev.filter(wire => 
+      wire.from !== componentId && wire.to !== componentId
+    ));
+    setSelectedComponent(null);
+  };
+
+  const clearCanvas = () => {
+    setComponents([]);
+    setWires([]);
+    setSelectedComponent(null);
+    setIsSimulating(false);
+  };
+
+  const startSimulation = () => {
+    setIsSimulating(true);
+    // Simulate circuit analysis
+    const battery = components.find(comp => comp.type === 'battery');
+    const resistors = components.filter(comp => comp.type === 'resistor');
+    
+    if (battery && resistors.length > 0) {
+      const voltage = parseFloat(battery.value) || 12;
+      const totalResistance = resistors.reduce((sum, res) => {
+        return sum + (parseFloat(res.value) || 100);
+      }, 0);
+      const current = voltage / totalResistance;
+      const power = voltage * current;
+      
+      setSimulationValues({
+        voltage: voltage.toFixed(2),
+        current: (current * 1000).toFixed(2), // Convert to mA
         power: power.toFixed(2),
-        voltage: totalVoltage.toFixed(2),
+        resistance: totalResistance.toFixed(2)
       });
-    } catch (error) {
-      setAnalysis({ error: 'Error analyzing circuit: ' + error.message });
     }
+  };
+
+  const stopSimulation = () => {
+    setIsSimulating(false);
+    setSimulationValues({
+      voltage: 0,
+      current: 0,
+      power: 0,
+      resistance: 0
+    });
   };
 
   return (
@@ -558,199 +471,134 @@ function CircuitBuilderContent() {
       <div className="container">
         <Title>Circuit Builder</Title>
         <BuilderDescription>
-          Design and analyze electronic circuits with this interactive drag-and-drop tool. 
-          Add components, connect them with wires, and simulate circuit behavior in real-time.
+          Build and simulate electronic circuits with a futuristic interface. 
+          Drag components from the palette and connect them to create working circuits.
         </BuilderDescription>
+        
+        <ControlPanel>
+          <ControlButton onClick={startSimulation} disabled={isSimulating}>
+            {isSimulating ? 'Simulating...' : 'Start Simulation'}
+          </ControlButton>
+          <ControlButton onClick={stopSimulation} disabled={!isSimulating}>
+            Stop Simulation
+          </ControlButton>
+          <ControlButton onClick={clearCanvas}>
+            Clear Canvas
+          </ControlButton>
+        </ControlPanel>
         
         <BuilderLayout>
           <ComponentPalette>
             <PaletteTitle>Components</PaletteTitle>
-            {componentTypes.map((component) => (
-              <ComponentItem
-                key={component.id}
-                draggable
-                onDragStart={(event) => onDragStart(event, component)}
-              >
-                <ComponentIcon>{component.icon}</ComponentIcon>
-                <ComponentName>{component.name}</ComponentName>
-              </ComponentItem>
-            ))}
+            <ComponentGrid>
+              {componentTypes.map((component) => (
+                <ComponentItem
+                  key={component.type}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, component)}
+                >
+                  <ComponentIcon>{component.icon}</ComponentIcon>
+                  <ComponentName>{component.name}</ComponentName>
+                </ComponentItem>
+              ))}
+            </ComponentGrid>
           </ComponentPalette>
-
-          <FlowContainer>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onNodeClick={onNodeClick}
-              onPaneClick={onPaneClick}
-              onDrop={onDrop}
-              onDragOver={onDragOver}
-              nodeTypes={nodeTypes}
-              fitView
-              attributionPosition="bottom-left"
-            >
-              <Background />
-              <Controls />
-              <MiniMap />
-            </ReactFlow>
-          </FlowContainer>
-
+          
+          <CircuitCanvas
+            ref={canvasRef}
+            onClick={handleCanvasClick}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const componentType = e.dataTransfer.getData('componentType');
+              if (componentType) {
+                const rect = canvasRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                // Handle drop logic
+              }
+            }}
+          >
+            {components.map((component) => (
+              <CircuitComponent
+                key={component.id}
+                style={{
+                  left: component.x,
+                  top: component.y,
+                }}
+                isSelected={component.isSelected}
+                onClick={() => handleComponentClick(component.id)}
+              >
+                <div style={{ fontSize: '1.5rem', textAlign: 'center' }}>
+                  {component.icon}
+                </div>
+                <ComponentValue>{component.value}</ComponentValue>
+              </CircuitComponent>
+            ))}
+            
+            {wires.map((wire) => (
+              <Wire
+                key={wire.id}
+                style={{
+                  left: wire.x1,
+                  top: wire.y1,
+                  width: wire.width,
+                  transform: `rotate(${wire.angle}deg)`
+                }}
+              />
+            ))}
+          </CircuitCanvas>
+          
           <PropertiesPanel>
-            <PropertyTitle>Circuit Tools</PropertyTitle>
+            <PaletteTitle>Properties</PaletteTitle>
             
-            <ActionButton onClick={analyzeCircuit}>
-              Analyze Circuit
-            </ActionButton>
-            
-            <ActionButton onClick={clearCanvas} secondary>
-              Clear Canvas
-            </ActionButton>
-
-            {selectedNode && (
-              <PropertyGroup>
-                <PropertyTitle>Component Properties</PropertyTitle>
-                
-                <PropertyItem>
+            {selectedComponent ? (
+              <>
+                <PropertyGroup>
                   <PropertyLabel>Component Type</PropertyLabel>
-                  <div style={{ 
-                    padding: '0.8rem', 
-                    backgroundColor: 'rgba(26, 26, 26, 0.5)', 
-                    borderRadius: '5px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.9rem'
-                  }}>
-                    {selectedNode.data.name}
+                  <div style={{ color: 'var(--color-text)', marginBottom: '1rem' }}>
+                    {selectedComponent.name}
                   </div>
-                </PropertyItem>
-
-                <PropertyItem>
+                </PropertyGroup>
+                
+                <PropertyGroup>
                   <PropertyLabel>Value</PropertyLabel>
                   <PropertyInput
                     type="text"
-                    value={selectedNode.data.value}
-                    onChange={(e) => updateNodeData(selectedNode.id, { value: e.target.value })}
-                    placeholder="Enter value (e.g., 1k, 5V, 1μF)"
+                    value={selectedComponent.value}
+                    onChange={(e) => updateComponentValue(selectedComponent.id, e.target.value)}
                   />
-                </PropertyItem>
-
-                {selectedNode.data.type === 'voltage-source' && (
-                  <PropertyItem>
-                    <PropertyLabel>Voltage (V)</PropertyLabel>
-                    <PropertyInput
-                      type="number"
-                      value={selectedNode.data.voltage || 0}
-                      onChange={(e) => updateNodeData(selectedNode.id, { voltage: parseFloat(e.target.value) || 0 })}
-                      step="0.1"
-                    />
-                  </PropertyItem>
-                )}
-
-                {selectedNode.data.type === 'resistor' && (
-                  <PropertyItem>
-                    <PropertyLabel>Resistance (Ω)</PropertyLabel>
-                    <PropertyInput
-                      type="number"
-                      value={selectedNode.data.resistance || 0}
-                      onChange={(e) => updateNodeData(selectedNode.id, { resistance: parseFloat(e.target.value) || 0 })}
-                      step="1"
-                    />
-                  </PropertyItem>
-                )}
-
-                {selectedNode.data.type === 'capacitor' && (
-                <PropertyItem>
-                    <PropertyLabel>Capacitance (F)</PropertyLabel>
-                  <PropertyInput
-                    type="number"
-                      value={selectedNode.data.capacitance || 0}
-                      onChange={(e) => updateNodeData(selectedNode.id, { capacitance: parseFloat(e.target.value) || 0 })}
-                      step="0.000001"
-                  />
-                </PropertyItem>
-                )}
-
-                {selectedNode.data.type === 'inductor' && (
-                <PropertyItem>
-                    <PropertyLabel>Inductance (H)</PropertyLabel>
-                  <PropertyInput
-                    type="number"
-                      value={selectedNode.data.inductance || 0}
-                      onChange={(e) => updateNodeData(selectedNode.id, { inductance: parseFloat(e.target.value) || 0 })}
-                      step="0.001"
-                  />
-                </PropertyItem>
-                )}
-              </PropertyGroup>
+                </PropertyGroup>
+                
+                <ControlButton onClick={() => deleteComponent(selectedComponent.id)}>
+                  Delete Component
+                </ControlButton>
+              </>
+            ) : (
+              <div style={{ color: 'var(--color-text)', opacity: 0.7 }}>
+                Select a component to edit its properties
+              </div>
             )}
-
-            {analysis && (
-              <PropertyGroup>
-                <PropertyTitle>Circuit Analysis</PropertyTitle>
-                {analysis.error ? (
-                  <div style={{ color: 'var(--color-accent-red)', fontSize: '0.9rem', fontFamily: 'var(--font-mono)' }}>
-                    {analysis.error}
-                  </div>
-                ) : (
-                  <ResultsPanel>
-                    <ResultItem>
-                      <ResultLabel>Total Resistance:</ResultLabel>
-                      <ResultValue>{analysis.totalResistance} Ω</ResultValue>
-                    </ResultItem>
-                    <ResultItem>
-                      <ResultLabel>Current:</ResultLabel>
-                      <ResultValue>{analysis.current} mA</ResultValue>
-                    </ResultItem>
-                    <ResultItem>
-                      <ResultLabel>Power:</ResultLabel>
-                      <ResultValue>{analysis.power} mW</ResultValue>
-                    </ResultItem>
-                    <ResultItem>
-                      <ResultLabel>Source Voltage:</ResultLabel>
-                      <ResultValue>{analysis.voltage} V</ResultValue>
-                    </ResultItem>
-                  </ResultsPanel>
-                )}
-              </PropertyGroup>
-            )}
-
-            <PropertyGroup>
-              <PropertyTitle>Instructions</PropertyTitle>
-              <InstructionsPanel>
-                <InstructionItem>
-                  <InstructionNumber>1.</InstructionNumber>
-                  <InstructionText>Drag components from the palette to the canvas</InstructionText>
-                </InstructionItem>
-                <InstructionItem>
-                  <InstructionNumber>2.</InstructionNumber>
-                  <InstructionText>Connect components by dragging from one handle to another</InstructionText>
-                </InstructionItem>
-                <InstructionItem>
-                  <InstructionNumber>3.</InstructionNumber>
-                  <InstructionText>Click on components to edit their properties</InstructionText>
-                </InstructionItem>
-                <InstructionItem>
-                  <InstructionNumber>4.</InstructionNumber>
-                  <InstructionText>Use "Analyze Circuit" to simulate the circuit</InstructionText>
-                </InstructionItem>
-              </InstructionsPanel>
-            </PropertyGroup>
+            
+            <SimulationPanel>
+              <PaletteTitle>Simulation Results</PaletteTitle>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                <PowerIndicator isOn={isSimulating} />
+                <span style={{ color: 'var(--color-text)' }}>
+                  {isSimulating ? 'Simulation Active' : 'Simulation Inactive'}
+                </span>
+              </div>
+              
+              <SimulationValue>Voltage: {simulationValues.voltage}V</SimulationValue>
+              <SimulationValue>Current: {simulationValues.current}mA</SimulationValue>
+              <SimulationValue>Power: {simulationValues.power}W</SimulationValue>
+              <SimulationValue>Resistance: {simulationValues.resistance}Ω</SimulationValue>
+            </SimulationPanel>
           </PropertiesPanel>
         </BuilderLayout>
       </div>
     </BuilderContainer>
   );
-}
-
-function CircuitBuilder() {
-  return (
-    <ReactFlowProvider>
-      <CircuitBuilderContent />
-    </ReactFlowProvider>
-  );
-}
+};
 
 export default CircuitBuilder;
