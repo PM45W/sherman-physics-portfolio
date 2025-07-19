@@ -167,6 +167,13 @@ const ModalContent = styled.div`
   transform: ${props => props.isOpen ? 'scale(1)' : 'scale(0.9)'};
   opacity: ${props => props.isOpen ? 1 : 0};
   transition: all 0.3s ease;
+  margin: 2rem;
+  
+  @media (max-width: 768px) {
+    max-height: 90vh;
+    margin: 1rem;
+    padding: 2rem;
+  }
   
   &::-webkit-scrollbar {
     width: 6px;
@@ -288,19 +295,19 @@ function Research() {
     {
       id: 1,
       icon: '🔬',
-      title: 'MOSFET Device Modeling',
-      subtitle: 'Semiconductor Physics Research',
-      description: 'Advanced modeling of MOSFET devices including quantum mechanical effects and nanoscale phenomena.',
-      tags: ['MOSFET', 'Device Physics', 'Quantum Mechanics', 'Simulation'],
+      title: 'Evolution of Glassy System States',
+      subtitle: 'Iso-configuration Simulations & AI Analysis',
+      description: 'Molecular dynamics simulations of glass models in iso-configuration ensemble with AI-powered state analysis.',
+      tags: ['Molecular Dynamics', 'AI Analysis', 'Glassy Systems', 'Simulation'],
       details: {
-        objective: 'Develop comprehensive models for MOSFET devices that account for quantum mechanical effects at nanoscale dimensions.',
-        methodology: 'Utilized quantum mechanical calculations combined with classical device physics to create hybrid models. Implemented numerical simulations using MATLAB and Python.',
-        results: 'Successfully developed models that show improved accuracy for sub-10nm devices. Achieved 15% better prediction accuracy compared to classical models.',
-        applications: 'These models can be used for next-generation semiconductor device design and optimization.',
+        objective: 'Map and analyze the network of reachable system states in glassy systems using molecular dynamics simulations and AI analysis.',
+        methodology: 'Perform molecular dynamics simulations of glass models in iso-configuration ensemble. Use AI algorithms to analyze and map the network of reachable system states.',
+        results: 'Currently in progress. Developing framework for AI-assisted analysis of glassy system evolution.',
+        applications: 'Understanding glass transition phenomena, material properties, and phase transitions in amorphous materials.',
         publications: [
           {
-            title: 'Quantum Effects in Nanoscale MOSFET Devices',
-            journal: 'Journal of Applied Physics (In Preparation)',
+            title: 'AI-Assisted Analysis of Glassy System Evolution',
+            journal: 'In Progress',
             year: '2024',
             authors: 'S. Wong, et al.'
           }
@@ -310,19 +317,19 @@ function Research() {
     {
       id: 2,
       icon: '⚛️',
-      title: 'Quantum Transport Studies',
-      subtitle: 'Theoretical Physics',
-      description: 'Investigation of quantum transport phenomena in low-dimensional semiconductor structures.',
-      tags: ['Quantum Transport', 'Semiconductors', 'Theoretical Physics', 'Nanostructures'],
+      title: 'Flat Band Promoted Polaron Formation',
+      subtitle: 'Twisted Bilayer 2D Materials',
+      description: 'Investigation of polaron formation mechanisms in twisted bilayer 2D materials with flat band structures.',
+      tags: ['2D Materials', 'Polarons', 'Flat Bands', 'Quantum Physics'],
       details: {
-        objective: 'Study quantum transport mechanisms in low-dimensional semiconductor structures and their applications.',
-        methodology: 'Theoretical analysis using quantum mechanical formalism, numerical calculations, and comparison with experimental data.',
-        results: 'Identified key quantum transport mechanisms affecting device performance. Developed theoretical framework for predicting transport properties.',
-        applications: 'Results applicable to quantum devices, sensors, and next-generation electronics.',
+        objective: 'Study polaron formation and dynamics in twisted bilayer 2D materials, particularly focusing on flat band effects.',
+        methodology: 'Theoretical analysis of electronic structure, quantum mechanical calculations, and numerical simulations of polaron dynamics.',
+        results: 'Currently in progress. Investigating the role of flat bands in polaron formation and stability.',
+        applications: 'Understanding electronic properties of 2D materials, potential applications in quantum devices and sensors.',
         publications: [
           {
-            title: 'Quantum Transport in Low-Dimensional Structures',
-            journal: 'Physical Review B (Under Review)',
+            title: 'Polaron Formation in Twisted Bilayer 2D Materials',
+            journal: 'In Progress',
             year: '2024',
             authors: 'S. Wong, et al.'
           }

@@ -527,8 +527,8 @@ function Contact() {
   const contactInfo = [
     {
       icon: '🎓',
-      label: 'Institution',
-      value: 'The Hong Kong Polytechnic University\nDepartment of Applied Physics'
+      label: 'Education',
+      value: 'Final Year Student\nBSc (Hons) in Physics with Secondary Major in\nArtificial Intelligence & Data Analytics (AIDA)\nThe Hong Kong Polytechnic University'
     },
     {
       icon: '🌍',
@@ -538,12 +538,12 @@ function Contact() {
     {
       icon: '📧',
       label: 'Email',
-      value: 'Available upon request\n(Please use contact form)'
+      value: 'wongtszho0515@gmail.com'
     },
     {
       icon: '🔬',
-      label: 'Research Areas',
-      value: 'Semiconductor Physics\nQuantum Mechanics\nDevice Modeling'
+      label: 'Current Research',
+      value: '1. Evolution of glassy system states from iso-configuration simulations and AI analysis\n2. Flat band promoted polaron formation in twisted bilayer 2D materials'
     }
   ];
 
@@ -582,17 +582,17 @@ function Contact() {
             </LocationMap>
             
             <SocialLinks>
-              <SocialLink href="#" title="LinkedIn">
+              <SocialLink href="https://www.linkedin.com/in/sherman-wong-321259243/" target="_blank" rel="noopener noreferrer" title="LinkedIn">
                 💼
               </SocialLink>
-              <SocialLink href="#" title="ResearchGate">
-                🔬
+              <SocialLink href="https://www.instagram.com/sherman._.wong/" target="_blank" rel="noopener noreferrer" title="Instagram">
+                📸
               </SocialLink>
-              <SocialLink href="#" title="GitHub">
+              <SocialLink href="mailto:wongtszho0515@gmail.com" title="Email">
+                📧
+              </SocialLink>
+              <SocialLink href="https://github.com/PM45W" target="_blank" rel="noopener noreferrer" title="GitHub">
                 💻
-              </SocialLink>
-              <SocialLink href="#" title="Google Scholar">
-                🎓
               </SocialLink>
             </SocialLinks>
           </ContactInfo>

@@ -500,16 +500,10 @@ const About = () => {
   
   const education = [
     {
-      degree: "Master of Philosophy in Applied Physics",
+      degree: "BSc (Hons) in Physics with Secondary Major in Artificial Intelligence & Data Analytics (AIDA)",
       institution: "The Hong Kong Polytechnic University",
-      year: "2022-2024",
-      details: "Specialized in semiconductor device physics and quantum mechanics with focus on MOSFET modeling and electronic properties of novel materials."
-    },
-    {
-      degree: "Bachelor of Science in Applied Physics",
-      institution: "The Hong Kong Polytechnic University", 
-      year: "2018-2022",
-      details: "Focus on materials science and electronic properties. Graduated with First Class Honours. Completed thesis on quantum transport in low-dimensional structures."
+      year: "2020-2024",
+      details: "Final Year Student. Specialized in semiconductor device physics, quantum mechanics, and AI applications in physics research. Focus on computational physics and data analytics."
     }
   ];
 
@@ -575,16 +569,16 @@ const About = () => {
             </DownloadButton>
             
             <ProfileLinks>
-              <ProfileLink href="#" title="LinkedIn">
+              <ProfileLink href="https://www.linkedin.com/in/sherman-wong-321259243/" target="_blank" rel="noopener noreferrer" title="LinkedIn">
                 💼
               </ProfileLink>
-              <ProfileLink href="#" title="ResearchGate">
-                🔬
+              <ProfileLink href="https://www.instagram.com/sherman._.wong/" target="_blank" rel="noopener noreferrer" title="Instagram">
+                📸
               </ProfileLink>
-              <ProfileLink href="#" title="GitHub">
+              <ProfileLink href="https://github.com/PM45W" target="_blank" rel="noopener noreferrer" title="GitHub">
                 💻
               </ProfileLink>
-              <ProfileLink href="#" title="Email">
+              <ProfileLink href="mailto:wongtszho0515@gmail.com" title="Email">
                 📧
               </ProfileLink>
             </ProfileLinks>

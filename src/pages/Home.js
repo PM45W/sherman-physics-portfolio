@@ -490,10 +490,11 @@ const Quote = styled.blockquote`
     font-size: 4rem;
     color: var(--color-accent-gold);
     position: absolute;
-    top: -1rem;
+    top: -0.5rem;
     left: 1rem;
     background-color: var(--color-gray-dark);
     padding: 0 0.5rem;
+    z-index: 1;
   }
   
   &::after {
@@ -502,10 +503,11 @@ const Quote = styled.blockquote`
     font-size: 4rem;
     color: var(--color-accent-gold);
     position: absolute;
-    bottom: -1rem;
+    bottom: -0.5rem;
     right: 1rem;
     background-color: var(--color-gray-dark);
     padding: 0 0.5rem;
+    z-index: 1;
   }
   
   @media (max-width: 768px) {
