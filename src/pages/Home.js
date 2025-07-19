@@ -16,6 +16,16 @@ const HeroSection = styled.section`
   justify-content: flex-start;
   padding: 2rem 2rem 0 2rem;
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: 1rem 1rem 0 1rem;
+    min-height: 90vh;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.8rem 0.8rem 0 0.8rem;
+    min-height: 85vh;
+  }
 `;
 
 const GridBackground = styled.div`
@@ -37,6 +47,14 @@ const HeroContent = styled.div`
   width: 100%;
   position: relative;
   z-index: 1;
+  
+  @media (max-width: 768px) {
+    margin: 1rem auto 0 auto;
+  }
+  
+  @media (max-width: 480px) {
+    margin: 0.5rem auto 0 auto;
+  }
 `;
 
 
@@ -48,6 +66,17 @@ const HeroSubtitle = styled.h2`
   margin-bottom: 2rem;
   max-width: 600px;
   opacity: 0.8;
+  
+  @media (max-width: 768px) {
+    font-size: clamp(0.9rem, 4vw, 1.2rem);
+    margin-bottom: 1.5rem;
+    max-width: 100%;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: clamp(0.8rem, 4.5vw, 1rem);
+    margin-bottom: 1rem;
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -55,6 +84,17 @@ const ButtonContainer = styled.div`
   gap: 1.5rem;
   margin-top: 2rem;
   flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-direction: column;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
 `;
 
 const PrimaryButton = styled(Link)`
@@ -91,6 +131,18 @@ const PrimaryButton = styled(Link)`
   &:hover::before {
     left: 100%;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.85rem;
+    text-align: center;
+    width: 100%;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.8rem;
+  }
 `;
 
 const SecondaryButton = styled(Link)`
@@ -126,6 +178,18 @@ const SecondaryButton = styled(Link)`
   
   &:hover::before {
     left: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.85rem;
+    text-align: center;
+    width: 100%;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.8rem;
   }
 `;
 
@@ -178,6 +242,14 @@ const ProjectsSection = styled.section`
   padding: 6rem 2rem;
   background-color: var(--color-gray-dark);
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: 4rem 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 3rem 0.8rem;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -204,6 +276,15 @@ const ProjectsGrid = styled.div`
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 1rem;
+  }
 `;
 
 const ProjectCard = styled.div`
@@ -233,6 +314,14 @@ const ProjectCard = styled.div`
   
   &:hover::before {
     height: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
   }
 `;
 
