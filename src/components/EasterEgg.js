@@ -77,13 +77,7 @@ const GameInstructions = styled.p`
   line-height: 1.6;
 `;
 
-const ScoreDisplay = styled.div`
-  font-family: var(--font-mono);
-  color: var(--color-accent-gold);
-  font-size: 1.5rem;
-  margin-top: 1rem;
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-`;
+
 
 const PhysicsTip = styled.div`
   position: absolute;
@@ -190,7 +184,7 @@ const EasterEgg = ({ onClose }) => {
     const PARTICLE_SIZE = 8;
     const BARRIER_WIDTH = 60;
     const BARRIER_HEIGHT = 200;
-    const BARRIER_GAP = 120;
+
     
     // Particle class
     class Particle {

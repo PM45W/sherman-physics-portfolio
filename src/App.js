@@ -13,6 +13,8 @@ import UnderConstruction from './pages/UnderConstruction';
 import LoadingScreen from './components/LoadingScreen';
 import EasterEgg from './components/EasterEgg';
 import EasterEggHint from './components/EasterEggHint';
+import ErrorBoundary from './components/ErrorBoundary';
+import performanceMonitor from './utils/performance';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -79,24 +81,26 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="noise"></div>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/mosfet" element={<MOSFETSimulator />} />
-        <Route path="/circuit" element={<CircuitBuilder />} />
-        <Route path="/research" element={<Research />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/under-construction" element={<UnderConstruction />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Footer />
-      <EasterEggHint />
-      {showEasterEgg && <EasterEgg onClose={() => setShowEasterEgg(false)} />}
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <div className="noise"></div>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/mosfet" element={<MOSFETSimulator />} />
+          <Route path="/circuit" element={<CircuitBuilder />} />
+          <Route path="/research" element={<Research />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/under-construction" element={<UnderConstruction />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Footer />
+        <EasterEggHint />
+        {showEasterEgg && <EasterEgg onClose={() => setShowEasterEgg(false)} />}
+      </Router>
+    </ErrorBoundary>
   );
 }
 

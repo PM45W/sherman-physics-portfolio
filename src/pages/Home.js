@@ -660,7 +660,7 @@ const Home = () => {
         return () => clearTimeout(timer);
       } else {
         const timer = setTimeout(() => {
-          setTerminalLines([...terminalLines, { 
+          setTerminalLines(prev => [...prev, { 
             prompt: currentScriptLine.prompt, 
             text: currentScriptLine.text 
           }]);
@@ -672,8 +672,7 @@ const Home = () => {
         return () => clearTimeout(timer);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lineIndex, charIndex, terminalLines]);
+  }, [lineIndex, charIndex]);
   
   useEffect(() => {
     if (terminalRef.current) {
