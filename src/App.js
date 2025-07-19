@@ -74,11 +74,8 @@ function App() {
     };
   }, []);
 
-  // Force loading for testing
-  const forceLoading = true;
-  
-  if (loading || forceLoading) {
-    console.log('Rendering LoadingScreen - Loading state:', loading, 'Force loading:', forceLoading);
+  if (loading) {
+    console.log('Rendering LoadingScreen - Loading state:', loading);
     return <LoadingScreen />;
   }
 
