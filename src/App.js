@@ -29,7 +29,7 @@ function App() {
     const timer = setTimeout(() => {
       console.log('Loading screen finished');
       setLoading(false);
-    }, 8000);
+    }, 4000);
     
     // Konami code: up, up, down, down, left, right, left, right, b, a
     const konamiCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
@@ -74,10 +74,7 @@ function App() {
     };
   }, []);
 
-  // Force loading screen for testing
-  const forceLoading = true;
-  
-  if (loading || forceLoading) {
+  if (loading) {
     console.log('Rendering LoadingScreen');
     return <LoadingScreen />;
   }
